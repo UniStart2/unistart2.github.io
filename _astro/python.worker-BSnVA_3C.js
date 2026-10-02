@@ -1,5 +1,0 @@
-(function(){let e,t;function n(e,t){self.postMessage({type:`chunk`,stream:e,text:t})}async function r(r){return e&&t===r?e:(t=r,e=(async()=>(n(`stdout`,`正在加载 Python 运行时(首次约 13 MB,之后走缓存)…
-`),(await import(
-/* @vite-ignore */
-`${r}pyodide.mjs`)).loadPyodide({indexURL:r})))(),e)}function i(e){if(e==null)return;let t=e,n=typeof t.toString==`function`?t.toString():String(e);return t.destroy?.(),n}self.onmessage=async e=>{let{code:t=``,stdin:a=``,pythonBase:o,type:s}=e.data;try{let e=await r(o);if(self.postMessage({type:`booted`}),s===`preload`)return;e.setStdout({batched:e=>n(`stdout`,e)}),e.setStderr({batched:e=>n(`stderr`,e)});let c=a.split(`
-`),l=0;e.setStdin({stdin:()=>l<c.length?c[l++]:``});let u=await e.runPythonAsync(t);self.postMessage({type:`done`,ok:!0,value:i(u)})}catch(e){let t=e,r=t.message??String(e);n(`stderr`,`${r}\n`),self.postMessage({type:`done`,ok:!1,error:{name:t.name??`Error`,message:r}})}}})();
