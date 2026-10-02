@@ -1,0 +1,180 @@
+<!DOCTYPE html><html lang="zh-CN" data-astro-cid-z4jru4n3><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Rails - 编写测试 - UniStart&#39;s Blog</title><meta name="description" content="个人博客 —— 学习笔记与工程实践"><link rel="canonical" href="https://unistart2.github.io/posts/rails-testing/"><link rel="alternate" type="application/rss+xml" title="UniStart's Blog" href="/rss.xml"><link rel="icon" href="/favicon.ico"><meta name="generator" content="Astro v7.3.5"><meta name="theme-color" media="(prefers-color-scheme: light)" content="#f4f5f8"><meta name="theme-color" media="(prefers-color-scheme: dark)" content="#16181d"><script>
+      try {
+        const saved = localStorage.getItem('theme')
+        if (saved === 'light' || saved === 'dark') document.documentElement.dataset.theme = saved
+      } catch {}
+    </script><link rel="stylesheet" href="/_astro/BaseLayout.Dro-nEvJ.css"></head><body data-astro-cid-z4jru4n3><div class="backdrop" aria-hidden="true" data-astro-cid-z4jru4n3></div><header class="site-header" data-astro-cid-z4jru4n3><div class="shell" data-astro-cid-z4jru4n3><a class="site-title" href="/" data-astro-cid-z4jru4n3><img class="avatar" src="/avatar.jpg" alt="" width="36" height="36" data-astro-cid-z4jru4n3><span data-astro-cid-z4jru4n3>UniStart&#39;s Blog<span class="site-tagline" data-astro-cid-z4jru4n3>心在哪里，家在哪里</span></span></a><div class="header-actions" data-astro-cid-z4jru4n3><nav aria-label="主导航" data-astro-cid-z4jru4n3><ul class="site-nav" data-astro-cid-z4jru4n3><li data-astro-cid-z4jru4n3><a href="/" data-astro-cid-z4jru4n3>首页</a></li><li data-astro-cid-z4jru4n3><a href="/archives/" data-astro-cid-z4jru4n3>归档</a></li><li data-astro-cid-z4jru4n3><a href="/categories/" data-astro-cid-z4jru4n3>分类</a></li><li data-astro-cid-z4jru4n3><a href="/tags/" data-astro-cid-z4jru4n3>标签</a></li><li data-astro-cid-z4jru4n3><a href="/friends/" data-astro-cid-z4jru4n3>友链</a></li><li data-astro-cid-z4jru4n3><a href="/links/" data-astro-cid-z4jru4n3>链接</a></li><li data-astro-cid-z4jru4n3><a href="/tools/" data-astro-cid-z4jru4n3>工具</a></li><li data-astro-cid-z4jru4n3><a href="/about/" data-astro-cid-z4jru4n3>关于</a></li></ul></nav><button class="theme-toggle" type="button" data-theme-toggle aria-label="切换深浅色" data-astro-cid-z4jru4n3><span aria-hidden="true" data-astro-cid-z4jru4n3>◐</span></button></div></div></header><main class="layout shell" data-astro-cid-z4jru4n3><article><header class="post-header"><h1>Rails - 编写测试</h1><div class="post-meta"><time datetime="2022-09-25T17:01:45.000Z">2022-09-25</time><span>分类<ul><li><a href="/categories/Rails/">Rails</a></li></ul></span><span>标签<ul><li><a href="/tags/Ruby/">#Ruby</a></li><li><a href="/tags/Rails/">#Rails</a></li></ul></span></div></header><div class="prose"><blockquote>
+<p>参考书籍：
+Ruby on Rails教程（第四版）</p>
+</blockquote>
+<h2 id="一个简单测试">一个简单测试</h2>
+<h3 id="编写测试文件">编写测试文件</h3>
+<blockquote>
+<p>找到test目录下对应的测试文件
+例如：test/controllers/static_pages_controller_test.rb</p>
+</blockquote>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="ruby"><code><span class="line" data-line="1"><span style="color:#6A737D;--shiki-dark:#8B949E"># 以下为之前使用"rails generator controller StaticPages home help"</span></span>
+<span class="line" data-line="2"><span style="color:#6A737D;--shiki-dark:#8B949E"># 命令时自动生成的测试代码</span></span>
+<span class="line" data-line="3"><span style="color:#D73A49;--shiki-dark:#FF7B72">require</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> 'test_helper'</span></span>
+<span class="line" data-line="4"></span>
+<span class="line" data-line="5"><span style="color:#D73A49;--shiki-dark:#FF7B72">class</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> StaticPagesControllerTest</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> &#x3C; </span><span style="color:#6F42C1;--shiki-dark:#79C0FF">ActionDispatch::IntegrationTest</span></span>
+<span class="line" data-line="6"><span style="color:#005CC5;--shiki-dark:#79C0FF">  test</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> 'should get home'</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> do</span></span>
+<span class="line" data-line="7"><span style="color:#24292E;--shiki-dark:#E6EDF3">    get static_pages_home_url</span></span>
+<span class="line" data-line="8"><span style="color:#24292E;--shiki-dark:#E6EDF3">    assert_response </span><span style="color:#005CC5;--shiki-dark:#79C0FF">:success</span></span>
+<span class="line" data-line="9"><span style="color:#D73A49;--shiki-dark:#FF7B72">  end</span></span>
+<span class="line" data-line="10"></span>
+<span class="line" data-line="11"><span style="color:#005CC5;--shiki-dark:#79C0FF">  test</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> 'should get help'</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> do</span></span>
+<span class="line" data-line="12"><span style="color:#24292E;--shiki-dark:#E6EDF3">    get static_pages_help_url</span></span>
+<span class="line" data-line="13"><span style="color:#24292E;--shiki-dark:#E6EDF3">    assert_response </span><span style="color:#005CC5;--shiki-dark:#79C0FF">:success</span></span>
+<span class="line" data-line="14"><span style="color:#D73A49;--shiki-dark:#FF7B72">  end</span></span>
+<span class="line" data-line="15"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span></code></pre>
+<h3 id="启动测试">启动测试</h3>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line" data-line="1"><span style="color:#6F42C1;--shiki-dark:#FFA657">rails</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> test</span></span></code></pre>
+<p>测试组件通过会以绿色显示，不通过的会以红色显示（颜色区分效果需要添加MiniTest依赖）</p>
+<h3 id="测试遇红及解决">测试遇红及解决</h3>
+<blockquote>
+<p>在测试文件static_pages_controller_test.rb中添加如下代码</p>
+</blockquote>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="ruby"><code><span class="line" data-line="1"><span style="color:#005CC5;--shiki-dark:#79C0FF">  test</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> "should get about"</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> do</span></span>
+<span class="line" data-line="2"><span style="color:#24292E;--shiki-dark:#E6EDF3">    get static_pages_about_url</span></span>
+<span class="line" data-line="3"><span style="color:#24292E;--shiki-dark:#E6EDF3">    assert_response </span><span style="color:#005CC5;--shiki-dark:#79C0FF">:success</span></span>
+<span class="line" data-line="4"><span style="color:#D73A49;--shiki-dark:#FF7B72">  end</span></span></code></pre>
+<p>再次启动测试，会发现有一个错误发生❌
+错误原因如下：NameError: undefined local variable or method 'static_pages_about_url'</p>
+<ul>
+<li>上面的错误消息提示我们没有定义获取about页面的Rails代码，实际上是<strong>提示我们需要在路由文件中添加相应路由规则</strong></li>
+<li><strong>找到config/routes.rb文件，添加"get 'static_pages/about'到文件当中</strong></li>
+<li>新增的代码告诉Rails，将发给static_pages/about页面的GET请求交给StaticPages控制器的about方法进行处理，同时会自动创建一个辅助方法static_pages_about_url</li>
+</ul>
+<hr>
+<p>再次启动测试，还是有错误发生❌
+错误原因如下：AbstractController::ActionNotFound: The action 'about' could not be found for StaticPagesController</p>
+<ul>
+<li>上面的错误消息提示我们<strong>StaticPages控制器缺少about方法</strong></li>
+<li>找到StaticPages控制器并向其添加about方法</li>
+</ul>
+<hr>
+<p>再次启动测试，仍然有错误发生❌
+错误原因如下：ActionController::UnknownFormat: StaticPagesController#about is missing a template for this request format and variant</p>
+<ul>
+<li>上面的错误消息表明<strong>about方法缺少对应的模版文件</strong>，在Rails中模版就是视图</li>
+<li>在app/views/static_pages目录中，新建一个文件取名about.html.erb，加入自己需要的内容即可</li>
+</ul>
+<hr>
+<p>再次启动测试，会发现测试可以通过✅</p>
+<h2 id="高级测试技术初步了解">高级测试技术初步了解</h2>
+<h3 id="minitest报告">MiniTest报告</h3>
+<blockquote>
+<p>为了Rails应用的测试适时显示红色和绿色，需要在测试辅助文件中引入MiniTest</p>
+</blockquote>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="ruby"><code><span class="line" data-line="1"><span style="color:#6A737D;--shiki-dark:#8B949E"># test/test_helper.rb文件代码如下</span></span>
+<span class="line" data-line="2"><span style="color:#005CC5;--shiki-dark:#79C0FF">ENV</span><span style="color:#24292E;--shiki-dark:#E6EDF3">[</span><span style="color:#032F62;--shiki-dark:#A5D6FF">"RAILS_ENV"</span><span style="color:#24292E;--shiki-dark:#E6EDF3">] </span><span style="color:#D73A49;--shiki-dark:#FF7B72">||=</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> "test"</span></span>
+<span class="line" data-line="3"><span style="color:#D73A49;--shiki-dark:#FF7B72">require_relative</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> "../config/environment"</span></span>
+<span class="line" data-line="4"><span style="color:#D73A49;--shiki-dark:#FF7B72">require</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> "rails/test_help"</span></span>
+<span class="line" data-line="5"><span style="color:#D73A49;--shiki-dark:#FF7B72">require</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> 'minitest/reporters'</span></span>
+<span class="line" data-line="6"><span style="color:#005CC5;--shiki-dark:#79C0FF">Minitest</span><span style="color:#24292E;--shiki-dark:#E6EDF3">::</span><span style="color:#005CC5;--shiki-dark:#79C0FF">Reporters</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">use!</span></span>
+<span class="line" data-line="7"></span>
+<span class="line" data-line="8"><span style="color:#D73A49;--shiki-dark:#FF7B72">class</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> ActiveSupport::TestCase</span></span>
+<span class="line" data-line="9"><span style="color:#6A737D;--shiki-dark:#8B949E">  # Run tests in parallel with specified workers</span></span>
+<span class="line" data-line="10"><span style="color:#6F42C1;--shiki-dark:#D2A8FF">  parallelize</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#005CC5;--shiki-dark:#79C0FF">workers:</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> :number_of_processors</span><span style="color:#24292E;--shiki-dark:#E6EDF3">)</span></span>
+<span class="line" data-line="11"></span>
+<span class="line" data-line="12"><span style="color:#6A737D;--shiki-dark:#8B949E">  # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.</span></span>
+<span class="line" data-line="13"><span style="color:#24292E;--shiki-dark:#E6EDF3">  fixtures </span><span style="color:#005CC5;--shiki-dark:#79C0FF">:all</span></span>
+<span class="line" data-line="14"></span>
+<span class="line" data-line="15"><span style="color:#6A737D;--shiki-dark:#8B949E">  # Add more helper methods to be used by all tests here...</span></span>
+<span class="line" data-line="16"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span></code></pre>
+<h3 id="使用guard进行自动测试">使用Guard进行自动测试</h3>
+<blockquote>
+<p>频繁使用rails test命令进行手动测试，显得有点笨拙
+为了避免这种不便，我们可以使用引入Guard自动进行测试
+Guard会监视文件系统的变动，并自动执行相应的测试
+例如：修改了static_pages_controller_test.rb文件，那么Guard只会运行这个文件中的测试
+我们还可以配置Guard，让它在模版文件被修改后，也会自动运行对应的测试文件中的测试</p>
+</blockquote>
+<h4 id="引入guard依赖">引入guard依赖</h4>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="ruby"><code><span class="line" data-line="1"><span style="color:#6A737D;--shiki-dark:#8B949E"># test环境下的特有依赖</span></span>
+<span class="line" data-line="2"><span style="color:#24292E;--shiki-dark:#E6EDF3">group </span><span style="color:#005CC5;--shiki-dark:#79C0FF">:test</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> do</span></span>
+<span class="line" data-line="3"><span style="color:#6A737D;--shiki-dark:#8B949E">  # gem "capybara"</span></span>
+<span class="line" data-line="4"><span style="color:#6A737D;--shiki-dark:#8B949E">  # gem "selenium-webdriver"</span></span>
+<span class="line" data-line="5"><span style="color:#6A737D;--shiki-dark:#8B949E">  # gem "webdrivers"</span></span>
+<span class="line" data-line="6"><span style="color:#24292E;--shiki-dark:#E6EDF3">  gem </span><span style="color:#032F62;--shiki-dark:#A5D6FF">'rails-controller-testing'</span><span style="color:#24292E;--shiki-dark:#E6EDF3">, </span><span style="color:#032F62;--shiki-dark:#A5D6FF">'1.0.5'</span></span>
+<span class="line" data-line="7"><span style="color:#24292E;--shiki-dark:#E6EDF3">  gem </span><span style="color:#032F62;--shiki-dark:#A5D6FF">'minitest'</span><span style="color:#24292E;--shiki-dark:#E6EDF3">, </span><span style="color:#032F62;--shiki-dark:#A5D6FF">'5.10.3'</span></span>
+<span class="line" data-line="8"><span style="color:#24292E;--shiki-dark:#E6EDF3">  gem </span><span style="color:#032F62;--shiki-dark:#A5D6FF">'minitest-reporters'</span><span style="color:#24292E;--shiki-dark:#E6EDF3">, </span><span style="color:#032F62;--shiki-dark:#A5D6FF">'1.1.9'</span></span>
+<span class="line" data-line="9"><span style="color:#24292E;--shiki-dark:#E6EDF3">  gem </span><span style="color:#032F62;--shiki-dark:#A5D6FF">'guard'</span><span style="color:#24292E;--shiki-dark:#E6EDF3">, </span><span style="color:#032F62;--shiki-dark:#A5D6FF">'2.18.0'</span></span>
+<span class="line" data-line="10"><span style="color:#24292E;--shiki-dark:#E6EDF3">  gem </span><span style="color:#032F62;--shiki-dark:#A5D6FF">'guard-minitest'</span><span style="color:#24292E;--shiki-dark:#E6EDF3">, </span><span style="color:#032F62;--shiki-dark:#A5D6FF">'2.4.4'</span></span>
+<span class="line" data-line="11"><span style="color:#24292E;--shiki-dark:#E6EDF3">  gem </span><span style="color:#032F62;--shiki-dark:#A5D6FF">'rb-readline'</span></span>
+<span class="line" data-line="12"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span></code></pre>
+<h4 id="初始化guardfile文件">初始化Guardfile文件</h4>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line" data-line="1"><span style="color:#6F42C1;--shiki-dark:#FFA657">bundle</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> exec</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> guard</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> init</span></span></code></pre>
+<h4 id="修改guardfile文件">修改Guardfile文件</h4>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="ruby"><code><span class="line" data-line="1"><span style="color:#6A737D;--shiki-dark:#8B949E"># 下面这行代码会让Guard使用Rails提供的Spring服务器，减少加载时间，而且启动时不运行整个测试组件</span></span>
+<span class="line" data-line="2"><span style="color:#24292E;--shiki-dark:#E6EDF3">guard </span><span style="color:#005CC5;--shiki-dark:#79C0FF">:minitest</span><span style="color:#24292E;--shiki-dark:#E6EDF3">, </span><span style="color:#005CC5;--shiki-dark:#79C0FF">spring:</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> "bin/rails test"</span><span style="color:#24292E;--shiki-dark:#E6EDF3">, </span><span style="color:#005CC5;--shiki-dark:#79C0FF">all_on_start:</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> false</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> do</span></span>
+<span class="line" data-line="3"><span style="color:#6F42C1;--shiki-dark:#D2A8FF">  watch</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#032F62;--shiki-dark:#A5D6FF">%r{^test/(.*)/?(.*)_test</span><span style="color:#22863A;--shiki-light-font-weight:bold;--shiki-dark:#7EE787;--shiki-dark-font-weight:bold">\.</span><span style="color:#032F62;--shiki-dark:#A5D6FF">rb$}</span><span style="color:#24292E;--shiki-dark:#E6EDF3">)</span></span>
+<span class="line" data-line="4"><span style="color:#6F42C1;--shiki-dark:#D2A8FF">  watch</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#032F62;--shiki-dark:#A5D6FF">'test/test_helper.rb'</span><span style="color:#24292E;--shiki-dark:#E6EDF3">) { </span><span style="color:#032F62;--shiki-dark:#A5D6FF">'test'</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> }</span></span>
+<span class="line" data-line="5"><span style="color:#6F42C1;--shiki-dark:#D2A8FF">  watch</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#032F62;--shiki-dark:#A5D6FF">'config/routes.rb'</span><span style="color:#24292E;--shiki-dark:#E6EDF3">)    { integration_tests }</span></span>
+<span class="line" data-line="6"><span style="color:#6F42C1;--shiki-dark:#D2A8FF">  watch</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#032F62;--shiki-dark:#A5D6FF">%r{^app/models/(.*?)</span><span style="color:#22863A;--shiki-light-font-weight:bold;--shiki-dark:#7EE787;--shiki-dark-font-weight:bold">\.</span><span style="color:#032F62;--shiki-dark:#A5D6FF">rb$}</span><span style="color:#24292E;--shiki-dark:#E6EDF3">) </span><span style="color:#D73A49;--shiki-dark:#FF7B72">do</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> |matches|</span></span>
+<span class="line" data-line="7"><span style="color:#032F62;--shiki-dark:#A5D6FF">    "test/models/</span><span style="color:#032F62;--shiki-dark:#FF7B72">#{</span><span style="color:#032F62;--shiki-dark:#A5D6FF">matches[</span><span style="color:#005CC5;--shiki-dark:#79C0FF">1</span><span style="color:#032F62;--shiki-dark:#A5D6FF">]</span><span style="color:#032F62;--shiki-dark:#FF7B72">}</span><span style="color:#032F62;--shiki-dark:#A5D6FF">_test.rb"</span></span>
+<span class="line" data-line="8"><span style="color:#D73A49;--shiki-dark:#FF7B72">  end</span></span>
+<span class="line" data-line="9"><span style="color:#6F42C1;--shiki-dark:#D2A8FF">  watch</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#032F62;--shiki-dark:#A5D6FF">%r{^app/controllers/(.*?)_controller</span><span style="color:#22863A;--shiki-light-font-weight:bold;--shiki-dark:#7EE787;--shiki-dark-font-weight:bold">\.</span><span style="color:#032F62;--shiki-dark:#A5D6FF">rb$}</span><span style="color:#24292E;--shiki-dark:#E6EDF3">) </span><span style="color:#D73A49;--shiki-dark:#FF7B72">do</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> |matches|</span></span>
+<span class="line" data-line="10"><span style="color:#6F42C1;--shiki-dark:#D2A8FF">    resource_tests</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(matches[</span><span style="color:#005CC5;--shiki-dark:#79C0FF">1</span><span style="color:#24292E;--shiki-dark:#E6EDF3">])</span></span>
+<span class="line" data-line="11"><span style="color:#D73A49;--shiki-dark:#FF7B72">  end</span></span>
+<span class="line" data-line="12"><span style="color:#6F42C1;--shiki-dark:#D2A8FF">  watch</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#032F62;--shiki-dark:#A5D6FF">%r{^app/views/([^/]*?)/.*</span><span style="color:#22863A;--shiki-light-font-weight:bold;--shiki-dark:#7EE787;--shiki-dark-font-weight:bold">\.</span><span style="color:#032F62;--shiki-dark:#A5D6FF">html</span><span style="color:#22863A;--shiki-light-font-weight:bold;--shiki-dark:#7EE787;--shiki-dark-font-weight:bold">\.</span><span style="color:#032F62;--shiki-dark:#A5D6FF">erb$}</span><span style="color:#24292E;--shiki-dark:#E6EDF3">) </span><span style="color:#D73A49;--shiki-dark:#FF7B72">do</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> |matches|</span></span>
+<span class="line" data-line="13"><span style="color:#24292E;--shiki-dark:#E6EDF3">    [</span><span style="color:#032F62;--shiki-dark:#A5D6FF">"test/controllers/</span><span style="color:#032F62;--shiki-dark:#FF7B72">#{</span><span style="color:#032F62;--shiki-dark:#A5D6FF">matches[</span><span style="color:#005CC5;--shiki-dark:#79C0FF">1</span><span style="color:#032F62;--shiki-dark:#A5D6FF">]</span><span style="color:#032F62;--shiki-dark:#FF7B72">}</span><span style="color:#032F62;--shiki-dark:#A5D6FF">_controller_test.rb"</span><span style="color:#24292E;--shiki-dark:#E6EDF3">] </span><span style="color:#D73A49;--shiki-dark:#FF7B72">+</span></span>
+<span class="line" data-line="14"><span style="color:#6F42C1;--shiki-dark:#D2A8FF">      integration_tests</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(matches[</span><span style="color:#005CC5;--shiki-dark:#79C0FF">1</span><span style="color:#24292E;--shiki-dark:#E6EDF3">])</span></span>
+<span class="line" data-line="15"><span style="color:#D73A49;--shiki-dark:#FF7B72">  end</span></span>
+<span class="line" data-line="16"><span style="color:#6F42C1;--shiki-dark:#D2A8FF">  watch</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#032F62;--shiki-dark:#A5D6FF">%r{^app/helpers/(.*?)_helper</span><span style="color:#22863A;--shiki-light-font-weight:bold;--shiki-dark:#7EE787;--shiki-dark-font-weight:bold">\.</span><span style="color:#032F62;--shiki-dark:#A5D6FF">rb$}</span><span style="color:#24292E;--shiki-dark:#E6EDF3">) </span><span style="color:#D73A49;--shiki-dark:#FF7B72">do</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> |matches|</span></span>
+<span class="line" data-line="17"><span style="color:#6F42C1;--shiki-dark:#D2A8FF">    integration_tests</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(matches[</span><span style="color:#005CC5;--shiki-dark:#79C0FF">1</span><span style="color:#24292E;--shiki-dark:#E6EDF3">])</span></span>
+<span class="line" data-line="18"><span style="color:#D73A49;--shiki-dark:#FF7B72">  end</span></span>
+<span class="line" data-line="19"><span style="color:#6F42C1;--shiki-dark:#D2A8FF">  watch</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#032F62;--shiki-dark:#A5D6FF">'app/views/layouts/application.html.erb'</span><span style="color:#24292E;--shiki-dark:#E6EDF3">) </span><span style="color:#D73A49;--shiki-dark:#FF7B72">do</span></span>
+<span class="line" data-line="20"><span style="color:#032F62;--shiki-dark:#A5D6FF">    'test/integration/site_layout_test.rb'</span></span>
+<span class="line" data-line="21"><span style="color:#D73A49;--shiki-dark:#FF7B72">  end</span></span>
+<span class="line" data-line="22"><span style="color:#6F42C1;--shiki-dark:#D2A8FF">  watch</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#032F62;--shiki-dark:#A5D6FF">'app/helpers/sessions_helper.rb'</span><span style="color:#24292E;--shiki-dark:#E6EDF3">) </span><span style="color:#D73A49;--shiki-dark:#FF7B72">do</span></span>
+<span class="line" data-line="23"><span style="color:#24292E;--shiki-dark:#E6EDF3">    integration_tests </span><span style="color:#D73A49;--shiki-dark:#FF7B72">&#x3C;&#x3C;</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> 'test/helpers/sessions_helper_test.rb'</span></span>
+<span class="line" data-line="24"><span style="color:#D73A49;--shiki-dark:#FF7B72">  end</span></span>
+<span class="line" data-line="25"><span style="color:#6F42C1;--shiki-dark:#D2A8FF">  watch</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#032F62;--shiki-dark:#A5D6FF">'app/controllers/sessions_controller.rb'</span><span style="color:#24292E;--shiki-dark:#E6EDF3">) </span><span style="color:#D73A49;--shiki-dark:#FF7B72">do</span></span>
+<span class="line" data-line="26"><span style="color:#24292E;--shiki-dark:#E6EDF3">    [</span><span style="color:#032F62;--shiki-dark:#A5D6FF">'test/controllers/sessions_controller_test.rb'</span><span style="color:#24292E;--shiki-dark:#E6EDF3">,</span></span>
+<span class="line" data-line="27"><span style="color:#032F62;--shiki-dark:#A5D6FF">     'test/integration/users_login_test.rb'</span><span style="color:#24292E;--shiki-dark:#E6EDF3">]</span></span>
+<span class="line" data-line="28"><span style="color:#D73A49;--shiki-dark:#FF7B72">  end</span></span>
+<span class="line" data-line="29"><span style="color:#6F42C1;--shiki-dark:#D2A8FF">  watch</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#032F62;--shiki-dark:#A5D6FF">'app/controllers/account_activations_controller.rb'</span><span style="color:#24292E;--shiki-dark:#E6EDF3">) </span><span style="color:#D73A49;--shiki-dark:#FF7B72">do</span></span>
+<span class="line" data-line="30"><span style="color:#032F62;--shiki-dark:#A5D6FF">    'test/integration/users_signup_test.rb'</span></span>
+<span class="line" data-line="31"><span style="color:#D73A49;--shiki-dark:#FF7B72">  end</span></span>
+<span class="line" data-line="32"><span style="color:#6F42C1;--shiki-dark:#D2A8FF">  watch</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#032F62;--shiki-dark:#A5D6FF">%r{app/views/users/*}</span><span style="color:#24292E;--shiki-dark:#E6EDF3">) </span><span style="color:#D73A49;--shiki-dark:#FF7B72">do</span></span>
+<span class="line" data-line="33"><span style="color:#6F42C1;--shiki-dark:#D2A8FF">    resource_tests</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#032F62;--shiki-dark:#A5D6FF">'users'</span><span style="color:#24292E;--shiki-dark:#E6EDF3">) </span><span style="color:#D73A49;--shiki-dark:#FF7B72">+</span></span>
+<span class="line" data-line="34"><span style="color:#24292E;--shiki-dark:#E6EDF3">      [</span><span style="color:#032F62;--shiki-dark:#A5D6FF">'test/integration/microposts_interface_test.rb'</span><span style="color:#24292E;--shiki-dark:#E6EDF3">]</span></span>
+<span class="line" data-line="35"><span style="color:#D73A49;--shiki-dark:#FF7B72">  end</span></span>
+<span class="line" data-line="36"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span>
+<span class="line" data-line="37"></span>
+<span class="line" data-line="38"><span style="color:#6A737D;--shiki-dark:#8B949E"># Returns the integration tests corresponding to the given resource.</span></span>
+<span class="line" data-line="39"><span style="color:#D73A49;--shiki-dark:#FF7B72">def</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF"> integration_tests</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(resource </span><span style="color:#D73A49;--shiki-dark:#FF7B72">=</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> :all</span><span style="color:#24292E;--shiki-dark:#E6EDF3">)</span></span>
+<span class="line" data-line="40"><span style="color:#D73A49;--shiki-dark:#FF7B72">  if</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> resource </span><span style="color:#D73A49;--shiki-dark:#FF7B72">==</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> :all</span></span>
+<span class="line" data-line="41"><span style="color:#005CC5;--shiki-dark:#79C0FF">    Dir</span><span style="color:#24292E;--shiki-dark:#E6EDF3">[</span><span style="color:#032F62;--shiki-dark:#A5D6FF">"test/integration/*"</span><span style="color:#24292E;--shiki-dark:#E6EDF3">]</span></span>
+<span class="line" data-line="42"><span style="color:#D73A49;--shiki-dark:#FF7B72">  else</span></span>
+<span class="line" data-line="43"><span style="color:#005CC5;--shiki-dark:#79C0FF">    Dir</span><span style="color:#24292E;--shiki-dark:#E6EDF3">[</span><span style="color:#032F62;--shiki-dark:#A5D6FF">"test/integration/</span><span style="color:#032F62;--shiki-dark:#FF7B72">#{</span><span style="color:#032F62;--shiki-dark:#A5D6FF">resource</span><span style="color:#032F62;--shiki-dark:#FF7B72">}</span><span style="color:#032F62;--shiki-dark:#A5D6FF">_*.rb"</span><span style="color:#24292E;--shiki-dark:#E6EDF3">]</span></span>
+<span class="line" data-line="44"><span style="color:#D73A49;--shiki-dark:#FF7B72">  end</span></span>
+<span class="line" data-line="45"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span>
+<span class="line" data-line="46"></span>
+<span class="line" data-line="47"><span style="color:#6A737D;--shiki-dark:#8B949E"># Returns the controller tests corresponding to the given resource.</span></span>
+<span class="line" data-line="48"><span style="color:#D73A49;--shiki-dark:#FF7B72">def</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF"> controller_test</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(resource)</span></span>
+<span class="line" data-line="49"><span style="color:#032F62;--shiki-dark:#A5D6FF">  "test/controllers/</span><span style="color:#032F62;--shiki-dark:#FF7B72">#{</span><span style="color:#032F62;--shiki-dark:#A5D6FF">resource</span><span style="color:#032F62;--shiki-dark:#FF7B72">}</span><span style="color:#032F62;--shiki-dark:#A5D6FF">_controller_test.rb"</span></span>
+<span class="line" data-line="50"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span>
+<span class="line" data-line="51"></span>
+<span class="line" data-line="52"><span style="color:#6A737D;--shiki-dark:#8B949E"># Returns all tests for the given resource.</span></span>
+<span class="line" data-line="53"><span style="color:#D73A49;--shiki-dark:#FF7B72">def</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF"> resource_tests</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(resource)</span></span>
+<span class="line" data-line="54"><span style="color:#6F42C1;--shiki-dark:#D2A8FF">  integration_tests</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(resource) </span><span style="color:#D73A49;--shiki-dark:#FF7B72">&#x3C;&#x3C;</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF"> controller_test</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(resource)</span></span>
+<span class="line" data-line="55"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span></code></pre>
+<h4 id="启动guard">启动Guard</h4>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line" data-line="1"><span style="color:#6F42C1;--shiki-dark:#FFA657">bundle</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> exec</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> guard</span></span></code></pre>
+<p>尝试修改一下控制器、模版视图、测试等文件，可以发现在修改保存后，guard会自动执行测试</p></div></article></main><footer class="site-footer" data-astro-cid-z4jru4n3><div class="shell" data-astro-cid-z4jru4n3><p data-astro-cid-z4jru4n3>© 2022–2026 UniStart · 心在哪里，家在哪里</p><p data-astro-cid-z4jru4n3><a href="https://github.com/unistart2" rel="me noopener noreferrer" target="_blank" data-astro-cid-z4jru4n3>GitHub</a><span aria-hidden="true" data-astro-cid-z4jru4n3> · </span><a href="/rss.xml" data-astro-cid-z4jru4n3>RSS</a></p></div></footer><script>
+      const toggle = document.querySelector('[data-theme-toggle]')
+      toggle?.addEventListener('click', () => {
+        const root = document.documentElement
+        const isDark =
+          root.dataset.theme === 'dark' ||
+          (!root.dataset.theme && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        const next = isDark ? 'light' : 'dark'
+        root.dataset.theme = next
+        try {
+          localStorage.setItem('theme', next)
+        } catch {}
+      })
+    </script></body></html>

@@ -1,0 +1,123 @@
+<!DOCTYPE html><html lang="zh-CN" data-astro-cid-z4jru4n3><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>nest.js学习 - 全局模块和生命周期 - UniStart&#39;s Blog</title><meta name="description" content="个人博客 —— 学习笔记与工程实践"><link rel="canonical" href="https://unistart2.github.io/posts/nestjs-lifecycle/"><link rel="alternate" type="application/rss+xml" title="UniStart's Blog" href="/rss.xml"><link rel="icon" href="/favicon.ico"><meta name="generator" content="Astro v7.3.5"><meta name="theme-color" media="(prefers-color-scheme: light)" content="#f4f5f8"><meta name="theme-color" media="(prefers-color-scheme: dark)" content="#16181d"><script>
+      try {
+        const saved = localStorage.getItem('theme')
+        if (saved === 'light' || saved === 'dark') document.documentElement.dataset.theme = saved
+      } catch {}
+    </script><link rel="stylesheet" href="/_astro/BaseLayout.Dro-nEvJ.css"></head><body data-astro-cid-z4jru4n3><div class="backdrop" aria-hidden="true" data-astro-cid-z4jru4n3></div><header class="site-header" data-astro-cid-z4jru4n3><div class="shell" data-astro-cid-z4jru4n3><a class="site-title" href="/" data-astro-cid-z4jru4n3><img class="avatar" src="/avatar.jpg" alt="" width="36" height="36" data-astro-cid-z4jru4n3><span data-astro-cid-z4jru4n3>UniStart&#39;s Blog<span class="site-tagline" data-astro-cid-z4jru4n3>心在哪里，家在哪里</span></span></a><div class="header-actions" data-astro-cid-z4jru4n3><nav aria-label="主导航" data-astro-cid-z4jru4n3><ul class="site-nav" data-astro-cid-z4jru4n3><li data-astro-cid-z4jru4n3><a href="/" data-astro-cid-z4jru4n3>首页</a></li><li data-astro-cid-z4jru4n3><a href="/archives/" data-astro-cid-z4jru4n3>归档</a></li><li data-astro-cid-z4jru4n3><a href="/categories/" data-astro-cid-z4jru4n3>分类</a></li><li data-astro-cid-z4jru4n3><a href="/tags/" data-astro-cid-z4jru4n3>标签</a></li><li data-astro-cid-z4jru4n3><a href="/friends/" data-astro-cid-z4jru4n3>友链</a></li><li data-astro-cid-z4jru4n3><a href="/links/" data-astro-cid-z4jru4n3>链接</a></li><li data-astro-cid-z4jru4n3><a href="/tools/" data-astro-cid-z4jru4n3>工具</a></li><li data-astro-cid-z4jru4n3><a href="/about/" data-astro-cid-z4jru4n3>关于</a></li></ul></nav><button class="theme-toggle" type="button" data-theme-toggle aria-label="切换深浅色" data-astro-cid-z4jru4n3><span aria-hidden="true" data-astro-cid-z4jru4n3>◐</span></button></div></div></header><main class="layout shell" data-astro-cid-z4jru4n3><article><header class="post-header"><h1>nest.js学习 - 全局模块和生命周期</h1><div class="post-meta"><time datetime="2023-05-31T16:50:49.000Z">2023-05-31</time><span>分类<ul><li><a href="/categories/nest-js/">nest.js</a></li></ul></span><span>标签<ul><li><a href="/tags/nest-js/">#nest.js</a></li></ul></span></div></header><div class="prose"><h2 id="全局模块">全局模块</h2>
+<blockquote>
+<p>nest.js项目一般由各个模块组成，如果一个模块A需要使用到模块B中的provider，那么需要在模块B中导出对应的provider，
+同时还需要在模块A中导入模块B，这样才能使用模块B的provider</p>
+</blockquote>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="js" data-filename="AaaModule导出provider" data-marked="8"><code><span class="line" data-line="1"><span style="color:#D73A49;--shiki-dark:#FF7B72">import</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> { Global, Module } </span><span style="color:#D73A49;--shiki-dark:#FF7B72">from</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> '@nestjs/common'</span><span style="color:#24292E;--shiki-dark:#E6EDF3">;</span></span>
+<span class="line" data-line="2"><span style="color:#D73A49;--shiki-dark:#FF7B72">import</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> { AaaService } </span><span style="color:#D73A49;--shiki-dark:#FF7B72">from</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> './aaa.service'</span><span style="color:#24292E;--shiki-dark:#E6EDF3">;</span></span>
+<span class="line" data-line="3"><span style="color:#D73A49;--shiki-dark:#FF7B72">import</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> { AaaController } </span><span style="color:#D73A49;--shiki-dark:#FF7B72">from</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> './aaa.controller'</span><span style="color:#24292E;--shiki-dark:#E6EDF3">;</span></span>
+<span class="line" data-line="4"></span>
+<span class="line" data-line="5"><span style="color:#24292E;--shiki-dark:#E6EDF3">@</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">Module</span><span style="color:#24292E;--shiki-dark:#E6EDF3">({</span></span>
+<span class="line" data-line="6"><span style="color:#24292E;--shiki-dark:#E6EDF3">  controllers: [AaaController],</span></span>
+<span class="line" data-line="7"><span style="color:#24292E;--shiki-dark:#E6EDF3">  providers: [AaaService],</span></span>
+<span class="line fence-marked" data-line="8"><span style="color:#24292E;--shiki-dark:#E6EDF3">  exports: [AaaService], </span><span style="color:#6A737D;--shiki-dark:#8B949E">// 导出的provider</span></span>
+<span class="line" data-line="9"><span style="color:#24292E;--shiki-dark:#E6EDF3">})</span></span>
+<span class="line" data-line="10"><span style="color:#D73A49;--shiki-dark:#FF7B72">export</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> class</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> AaaModule</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> {}</span></span></code></pre>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="js" data-filename="BbbModule导入AaaModule" data-marked="7"><code><span class="line" data-line="1"><span style="color:#D73A49;--shiki-dark:#FF7B72">import</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> { Module } </span><span style="color:#D73A49;--shiki-dark:#FF7B72">from</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> '@nestjs/common'</span><span style="color:#24292E;--shiki-dark:#E6EDF3">;</span></span>
+<span class="line" data-line="2"><span style="color:#D73A49;--shiki-dark:#FF7B72">import</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> { BbbService } </span><span style="color:#D73A49;--shiki-dark:#FF7B72">from</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> './bbb.service'</span><span style="color:#24292E;--shiki-dark:#E6EDF3">;</span></span>
+<span class="line" data-line="3"><span style="color:#D73A49;--shiki-dark:#FF7B72">import</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> { BbbController } </span><span style="color:#D73A49;--shiki-dark:#FF7B72">from</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> './bbb.controller'</span><span style="color:#24292E;--shiki-dark:#E6EDF3">;</span></span>
+<span class="line" data-line="4"><span style="color:#D73A49;--shiki-dark:#FF7B72">import</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> { AaaModule } </span><span style="color:#D73A49;--shiki-dark:#FF7B72">from</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> 'src/aaa/aaa.module'</span><span style="color:#24292E;--shiki-dark:#E6EDF3">;</span></span>
+<span class="line" data-line="5"></span>
+<span class="line" data-line="6"><span style="color:#24292E;--shiki-dark:#E6EDF3">@</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">Module</span><span style="color:#24292E;--shiki-dark:#E6EDF3">({</span></span>
+<span class="line fence-marked" data-line="7"><span style="color:#24292E;--shiki-dark:#E6EDF3">  imports: [AaaModule],</span></span>
+<span class="line" data-line="8"><span style="color:#24292E;--shiki-dark:#E6EDF3">  controllers: [BbbController],</span></span>
+<span class="line" data-line="9"><span style="color:#24292E;--shiki-dark:#E6EDF3">  providers: [BbbService],</span></span>
+<span class="line" data-line="10"><span style="color:#24292E;--shiki-dark:#E6EDF3">})</span></span>
+<span class="line" data-line="11"><span style="color:#D73A49;--shiki-dark:#FF7B72">export</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> class</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> BbbModule</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> {}</span></span></code></pre>
+<blockquote>
+<p>但是如果一个模块被多个其他模块所依赖，这样一个一个导入会显得很麻烦，
+因此需要使用@Global装饰器将其作为全局模块，这样全局模块对所有其他模块均可见，不再需要导入模块了</p>
+</blockquote>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="js" data-filename="@Global全局模块" data-marked="5"><code><span class="line" data-line="1"><span style="color:#D73A49;--shiki-dark:#FF7B72">import</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> { Global, Module } </span><span style="color:#D73A49;--shiki-dark:#FF7B72">from</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> '@nestjs/common'</span><span style="color:#24292E;--shiki-dark:#E6EDF3">;</span></span>
+<span class="line" data-line="2"><span style="color:#D73A49;--shiki-dark:#FF7B72">import</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> { AaaService } </span><span style="color:#D73A49;--shiki-dark:#FF7B72">from</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> './aaa.service'</span><span style="color:#24292E;--shiki-dark:#E6EDF3">;</span></span>
+<span class="line" data-line="3"><span style="color:#D73A49;--shiki-dark:#FF7B72">import</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> { AaaController } </span><span style="color:#D73A49;--shiki-dark:#FF7B72">from</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> './aaa.controller'</span><span style="color:#24292E;--shiki-dark:#E6EDF3">;</span></span>
+<span class="line" data-line="4"></span>
+<span class="line fence-marked" data-line="5"><span style="color:#24292E;--shiki-dark:#E6EDF3">@</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">Global</span><span style="color:#24292E;--shiki-dark:#E6EDF3">() </span><span style="color:#6A737D;--shiki-dark:#8B949E">// </span></span>
+<span class="line" data-line="6"><span style="color:#24292E;--shiki-dark:#E6EDF3">@</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">Module</span><span style="color:#24292E;--shiki-dark:#E6EDF3">({</span></span>
+<span class="line" data-line="7"><span style="color:#24292E;--shiki-dark:#E6EDF3">  controllers: [AaaController],</span></span>
+<span class="line" data-line="8"><span style="color:#24292E;--shiki-dark:#E6EDF3">  providers: [AaaService],</span></span>
+<span class="line" data-line="9"><span style="color:#24292E;--shiki-dark:#E6EDF3">  exports: [AaaService], </span><span style="color:#6A737D;--shiki-dark:#8B949E">// 导出的provider</span></span>
+<span class="line" data-line="10"><span style="color:#24292E;--shiki-dark:#E6EDF3">})</span></span>
+<span class="line" data-line="11"><span style="color:#D73A49;--shiki-dark:#FF7B72">export</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> class</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> AaaModule</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> {}</span></span></code></pre>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="js" data-filename="其他模块不再需要imports导入了" data-marked="6"><code><span class="line" data-line="1"><span style="color:#D73A49;--shiki-dark:#FF7B72">import</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> { Module } </span><span style="color:#D73A49;--shiki-dark:#FF7B72">from</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> '@nestjs/common'</span><span style="color:#24292E;--shiki-dark:#E6EDF3">;</span></span>
+<span class="line" data-line="2"><span style="color:#D73A49;--shiki-dark:#FF7B72">import</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> { BbbService } </span><span style="color:#D73A49;--shiki-dark:#FF7B72">from</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> './bbb.service'</span><span style="color:#24292E;--shiki-dark:#E6EDF3">;</span></span>
+<span class="line" data-line="3"><span style="color:#D73A49;--shiki-dark:#FF7B72">import</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> { BbbController } </span><span style="color:#D73A49;--shiki-dark:#FF7B72">from</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> './bbb.controller'</span><span style="color:#24292E;--shiki-dark:#E6EDF3">;</span></span>
+<span class="line" data-line="4"></span>
+<span class="line" data-line="5"><span style="color:#24292E;--shiki-dark:#E6EDF3">@</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">Module</span><span style="color:#24292E;--shiki-dark:#E6EDF3">({</span></span>
+<span class="line fence-marked" data-line="6"><span style="color:#24292E;--shiki-dark:#E6EDF3">  imports: [],</span></span>
+<span class="line" data-line="7"><span style="color:#24292E;--shiki-dark:#E6EDF3">  controllers: [BbbController],</span></span>
+<span class="line" data-line="8"><span style="color:#24292E;--shiki-dark:#E6EDF3">  providers: [BbbService],</span></span>
+<span class="line" data-line="9"><span style="color:#24292E;--shiki-dark:#E6EDF3">})</span></span>
+<span class="line" data-line="10"><span style="color:#D73A49;--shiki-dark:#FF7B72">export</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> class</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> BbbModule</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> {}</span></span></code></pre>
+<h2 id="启动时的生命周期">启动时的生命周期</h2>
+<p><span class="image-missing" data-original-src="https://cdn.unistart.top/blog/nest.js-bootstrap-lifecycle.png">nest.js启动时生命周期流程</span></p>
+<blockquote>
+<p>在启动过程中，onModuleInit和onApplicationBootstrap都是我们可以实现的生命周期方法
+nest.js提供了对应的接口OnModuleInit和OnApplicationBootstrap</p>
+</blockquote>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line" data-line="1"><span style="color:#D73A49;--shiki-dark:#FF7B72">...</span></span>
+<span class="line" data-line="2"></span>
+<span class="line" data-line="3"><span style="color:#24292E;--shiki-dark:#E6EDF3">@</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">Controller</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#032F62;--shiki-dark:#A5D6FF">'ccc'</span><span style="color:#24292E;--shiki-dark:#E6EDF3">)</span></span>
+<span class="line" data-line="4"><span style="color:#D73A49;--shiki-dark:#FF7B72">export</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> class</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> CccController</span></span>
+<span class="line" data-line="5"><span style="color:#D73A49;--shiki-dark:#FF7B72">  implements</span></span>
+<span class="line" data-line="6"><span style="color:#6F42C1;--shiki-dark:#79C0FF">    OnModuleInit</span><span style="color:#24292E;--shiki-dark:#E6EDF3">,</span></span>
+<span class="line" data-line="7"><span style="color:#6F42C1;--shiki-dark:#79C0FF">    OnApplicationBootstrap</span><span style="color:#24292E;--shiki-dark:#E6EDF3">,</span></span>
+<span class="line" data-line="8"><span style="color:#24292E;--shiki-dark:#E6EDF3">{</span></span>
+<span class="line" data-line="9"><span style="color:#D73A49;--shiki-dark:#FF7B72">  constructor</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#D73A49;--shiki-dark:#FF7B72">private</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> readonly</span><span style="color:#E36209;--shiki-dark:#FFA657"> cccService</span><span style="color:#D73A49;--shiki-dark:#FF7B72">:</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> CccService</span><span style="color:#24292E;--shiki-dark:#E6EDF3">) {}</span></span>
+<span class="line" data-line="10"></span>
+<span class="line" data-line="11"><span style="color:#6F42C1;--shiki-dark:#D2A8FF">  onModuleInit</span><span style="color:#24292E;--shiki-dark:#E6EDF3">() {</span></span>
+<span class="line" data-line="12"><span style="color:#24292E;--shiki-dark:#E6EDF3">    console.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">log</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#032F62;--shiki-dark:#A5D6FF">'CccController onModuleInit'</span><span style="color:#24292E;--shiki-dark:#E6EDF3">);</span></span>
+<span class="line" data-line="13"><span style="color:#24292E;--shiki-dark:#E6EDF3">  }</span></span>
+<span class="line" data-line="14"><span style="color:#6F42C1;--shiki-dark:#D2A8FF">  onApplicationBootstrap</span><span style="color:#24292E;--shiki-dark:#E6EDF3">() {</span></span>
+<span class="line" data-line="15"><span style="color:#24292E;--shiki-dark:#E6EDF3">    console.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">log</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#032F62;--shiki-dark:#A5D6FF">'CccController onApplicationBootstrap'</span><span style="color:#24292E;--shiki-dark:#E6EDF3">);</span></span>
+<span class="line" data-line="16"><span style="color:#24292E;--shiki-dark:#E6EDF3">  }</span></span>
+<span class="line" data-line="17"></span>
+<span class="line" data-line="18"><span style="color:#D73A49;--shiki-dark:#FF7B72">  ...</span></span>
+<span class="line" data-line="19"><span style="color:#24292E;--shiki-dark:#E6EDF3">}</span></span></code></pre>
+<h2 id="结束时的生命周期">结束时的生命周期</h2>
+<p><span class="image-missing" data-original-src="https://cdn.unistart.top/blog/nestjs-destroy-lifecycle.png">nest.js结束时生命周期流程</span></p>
+<blockquote>
+<p>在结束过程中，onModuleDestroy和beforeApplicationShutdown以及onApplicationShutdown都是我们可以实现的生命周期方法
+nest.js提供了对应的接口OnModuleDestroy和BeforeApplicationShutdown以及OnApplicationShutdown</p>
+</blockquote>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line" data-line="1"><span style="color:#24292E;--shiki-dark:#E6EDF3">@</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">Controller</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#032F62;--shiki-dark:#A5D6FF">'ccc'</span><span style="color:#24292E;--shiki-dark:#E6EDF3">)</span></span>
+<span class="line" data-line="2"><span style="color:#D73A49;--shiki-dark:#FF7B72">export</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> class</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> CccController</span></span>
+<span class="line" data-line="3"><span style="color:#D73A49;--shiki-dark:#FF7B72">  implements</span></span>
+<span class="line" data-line="4"><span style="color:#6F42C1;--shiki-dark:#79C0FF">    OnModuleDestroy</span><span style="color:#24292E;--shiki-dark:#E6EDF3">,</span></span>
+<span class="line" data-line="5"><span style="color:#6F42C1;--shiki-dark:#79C0FF">    BeforeApplicationShutdown</span><span style="color:#24292E;--shiki-dark:#E6EDF3">,</span></span>
+<span class="line" data-line="6"><span style="color:#6F42C1;--shiki-dark:#79C0FF">    OnApplicationShutdown</span></span>
+<span class="line" data-line="7"><span style="color:#24292E;--shiki-dark:#E6EDF3">{</span></span>
+<span class="line" data-line="8"><span style="color:#D73A49;--shiki-dark:#FF7B72">  constructor</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#D73A49;--shiki-dark:#FF7B72">private</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> readonly</span><span style="color:#E36209;--shiki-dark:#FFA657"> cccService</span><span style="color:#D73A49;--shiki-dark:#FF7B72">:</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> CccService</span><span style="color:#24292E;--shiki-dark:#E6EDF3">) {}</span></span>
+<span class="line" data-line="9"></span>
+<span class="line" data-line="10"><span style="color:#6F42C1;--shiki-dark:#D2A8FF">  onModuleDestroy</span><span style="color:#24292E;--shiki-dark:#E6EDF3">() {</span></span>
+<span class="line" data-line="11"><span style="color:#24292E;--shiki-dark:#E6EDF3">    console.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">log</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#032F62;--shiki-dark:#A5D6FF">'CccController onModuleDestroy'</span><span style="color:#24292E;--shiki-dark:#E6EDF3">);</span></span>
+<span class="line" data-line="12"><span style="color:#24292E;--shiki-dark:#E6EDF3">  }</span></span>
+<span class="line" data-line="13"></span>
+<span class="line" data-line="14"><span style="color:#6F42C1;--shiki-dark:#D2A8FF">  beforeApplicationShutdown</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#E36209;--shiki-dark:#FFA657">signal</span><span style="color:#D73A49;--shiki-dark:#FF7B72">?:</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> string</span><span style="color:#24292E;--shiki-dark:#E6EDF3">) {</span></span>
+<span class="line" data-line="15"><span style="color:#24292E;--shiki-dark:#E6EDF3">    console.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">log</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#032F62;--shiki-dark:#A5D6FF">'CccController beforeApplicationShutdown'</span><span style="color:#24292E;--shiki-dark:#E6EDF3">);</span></span>
+<span class="line" data-line="16"><span style="color:#24292E;--shiki-dark:#E6EDF3">  }</span></span>
+<span class="line" data-line="17"></span>
+<span class="line" data-line="18"><span style="color:#6F42C1;--shiki-dark:#D2A8FF">  onApplicationShutdown</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#E36209;--shiki-dark:#FFA657">signal</span><span style="color:#D73A49;--shiki-dark:#FF7B72">?:</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> string</span><span style="color:#24292E;--shiki-dark:#E6EDF3">) {</span></span>
+<span class="line" data-line="19"><span style="color:#24292E;--shiki-dark:#E6EDF3">    console.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">log</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#032F62;--shiki-dark:#A5D6FF">'CccController onApplicationShutdown'</span><span style="color:#24292E;--shiki-dark:#E6EDF3">);</span></span>
+<span class="line" data-line="20"><span style="color:#24292E;--shiki-dark:#E6EDF3">  }</span></span>
+<span class="line" data-line="21"></span>
+<span class="line" data-line="22"><span style="color:#D73A49;--shiki-dark:#FF7B72">  ...</span></span>
+<span class="line" data-line="23"><span style="color:#24292E;--shiki-dark:#E6EDF3">}</span></span></code></pre></div></article></main><footer class="site-footer" data-astro-cid-z4jru4n3><div class="shell" data-astro-cid-z4jru4n3><p data-astro-cid-z4jru4n3>© 2022–2026 UniStart · 心在哪里，家在哪里</p><p data-astro-cid-z4jru4n3><a href="https://github.com/unistart2" rel="me noopener noreferrer" target="_blank" data-astro-cid-z4jru4n3>GitHub</a><span aria-hidden="true" data-astro-cid-z4jru4n3> · </span><a href="/rss.xml" data-astro-cid-z4jru4n3>RSS</a></p></div></footer><script>
+      const toggle = document.querySelector('[data-theme-toggle]')
+      toggle?.addEventListener('click', () => {
+        const root = document.documentElement
+        const isDark =
+          root.dataset.theme === 'dark' ||
+          (!root.dataset.theme && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        const next = isDark ? 'light' : 'dark'
+        root.dataset.theme = next
+        try {
+          localStorage.setItem('theme', next)
+        } catch {}
+      })
+    </script></body></html>

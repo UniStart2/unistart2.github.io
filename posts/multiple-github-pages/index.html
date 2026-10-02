@@ -1,0 +1,101 @@
+<!DOCTYPE html><html lang="zh-CN" data-astro-cid-z4jru4n3><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>多个Github Pages设置 - UniStart&#39;s Blog</title><meta name="description" content="个人博客 —— 学习笔记与工程实践"><link rel="canonical" href="https://unistart2.github.io/posts/multiple-github-pages/"><link rel="alternate" type="application/rss+xml" title="UniStart's Blog" href="/rss.xml"><link rel="icon" href="/favicon.ico"><meta name="generator" content="Astro v7.3.5"><meta name="theme-color" media="(prefers-color-scheme: light)" content="#f4f5f8"><meta name="theme-color" media="(prefers-color-scheme: dark)" content="#16181d"><script>
+      try {
+        const saved = localStorage.getItem('theme')
+        if (saved === 'light' || saved === 'dark') document.documentElement.dataset.theme = saved
+      } catch {}
+    </script><link rel="stylesheet" href="/_astro/BaseLayout.Dro-nEvJ.css"></head><body data-astro-cid-z4jru4n3><div class="backdrop" aria-hidden="true" data-astro-cid-z4jru4n3></div><header class="site-header" data-astro-cid-z4jru4n3><div class="shell" data-astro-cid-z4jru4n3><a class="site-title" href="/" data-astro-cid-z4jru4n3><img class="avatar" src="/avatar.jpg" alt="" width="36" height="36" data-astro-cid-z4jru4n3><span data-astro-cid-z4jru4n3>UniStart&#39;s Blog<span class="site-tagline" data-astro-cid-z4jru4n3>心在哪里，家在哪里</span></span></a><div class="header-actions" data-astro-cid-z4jru4n3><nav aria-label="主导航" data-astro-cid-z4jru4n3><ul class="site-nav" data-astro-cid-z4jru4n3><li data-astro-cid-z4jru4n3><a href="/" data-astro-cid-z4jru4n3>首页</a></li><li data-astro-cid-z4jru4n3><a href="/archives/" data-astro-cid-z4jru4n3>归档</a></li><li data-astro-cid-z4jru4n3><a href="/categories/" data-astro-cid-z4jru4n3>分类</a></li><li data-astro-cid-z4jru4n3><a href="/tags/" data-astro-cid-z4jru4n3>标签</a></li><li data-astro-cid-z4jru4n3><a href="/friends/" data-astro-cid-z4jru4n3>友链</a></li><li data-astro-cid-z4jru4n3><a href="/links/" data-astro-cid-z4jru4n3>链接</a></li><li data-astro-cid-z4jru4n3><a href="/tools/" data-astro-cid-z4jru4n3>工具</a></li><li data-astro-cid-z4jru4n3><a href="/about/" data-astro-cid-z4jru4n3>关于</a></li></ul></nav><button class="theme-toggle" type="button" data-theme-toggle aria-label="切换深浅色" data-astro-cid-z4jru4n3><span aria-hidden="true" data-astro-cid-z4jru4n3>◐</span></button></div></div></header><main class="layout shell" data-astro-cid-z4jru4n3><article><header class="post-header"><h1>多个Github Pages设置</h1><div class="post-meta"><time datetime="2023-01-01T21:40:44.000Z">2023-01-01</time><span>分类<ul><li><a href="/categories/Github/">Github</a></li></ul></span><span>标签<ul><li><a href="/tags/Github/">#Github</a></li><li><a href="/tags/Github-Pages/">#Github Pages</a></li></ul></span></div></header><div class="prose"><div class="note info" data-callout="info"><p>参考<a href="https://segmentfault.com/a/1190000003946969">单个GitHub帐号下添加多个GitHub Pages的相关问题</a>
+参考<a href="https://docs.github.com/zh/pages/getting-started-with-github-pages/about-github-pages">Github Pages Docs</a></p></div>
+<h1 id="概述">概述</h1>
+<ul>
+<li>GitHub Pages分为: <span class="red">用户/组织主页</span>以及<span class="red">项目主页</span></li>
+<li><span class="red">用户主页或组织主页</span>分别都只能存在一个<span class="red">repo</span>，而<span class="red">项目主页</span>则没有<span class="red">repo</span>数量限制</li>
+<li>若要发布<span class="red">用户主页</span>，必须创建名为<span class="red">&#x3C;username>.github.io</span>的repo; 若要发布<span class="red">组织主页</span>，必须创建名为<span class="red">&#x3C;organization>.github.io</span>的repo; 而<span class="red">项目主页</span>的仓库则<span class="red">没有名称限制</span></li>
+<li><span class="red">用户主页</span>默认域名形式为<span class="red">&#x3C;username>.github.io</span></li>
+<li><span class="red">组织主页</span>默认域名形式为<span class="red">&#x3C;organization>.github.io </span></li>
+<li><span class="red">项目主页</span>默认域名形式为<span class="red">&#x3C;username>.github.io/&#x3C;repository></span>或者<span class="red">&#x3C;organization>.github.io/&#x3C;repository></span></li>
+<li><span class="red">用户主页或组织主页</span>的展示内容以<span class="red">主分支</span>(<span class="red">master</span>分支或<span class="red">main</span>分支)里的文件为准；而<span class="red">项目主页</span>的展示内容以<span class="red">gh-pages</span>分支内的文件为准</li>
+</ul>
+<h1 id="示例">示例</h1>
+<blockquote>
+<p>以部署一个<span class="red">VuePress</span>项目主页为例</p>
+</blockquote>
+<ol>
+<li>参考<a href="https://v2.vuepress.vuejs.org/zh/guide/">VuePress指南</a>在本地建立好项目</li>
+<li>建立一个Github仓库，取名任意</li>
+<li>参考<a href="https://v2.vuepress.vuejs.org/zh/guide/deployment.html">VuePress部署</a>部署项目到Github上
+<ul>
+<li>注意在<a href="https://v2.vuepress.vuejs.org/zh/guide/configuration.html">配置文件</a>中设置正确的<a href="https://v2.vuepress.vuejs.org/zh/reference/config.html#base">base</a>选项，在该示例中<code>base</code>应为<code>第2步建立的仓库名</code></li>
+<li>编写<code>GitHub Actions</code>工作流</li>
+<li>推送<code>本地仓库</code>到<code>GitHub远程仓库</code></li>
+<li>进入<code>GitHub项目仓库</code>找到<code>Settings</code>下的<code>Pages</code>，修改<code>Build and deployment</code>下的<code>branch</code>选项为<code>gh-pages</code>（此操作会触发GitHub Actions进行重新部署）</li>
+</ul>
+</li>
+<li>访问部署好的页面(<code>Github项目仓库</code>的<code>Settings</code>下的<code>Pages</code>页面可以看到)</li>
+</ol>
+<h1 id="github-actions工作流参考">GitHub Actions工作流参考</h1>
+<blockquote>
+<p>在本地项目根目录下新建<code>.github/workflows/docs.yml</code>文件来设置<code>工作流</code>
+下面的<code>工作流示例</code>和<a href="https://v2.vuepress.vuejs.org/zh/guide/deployment.html#github-pages">VuePress官方写的工作流</a>写的略有不同，官方使用的<code>pnpm</code>作为包管理器，而<code>工作流示例</code>直接使用<code>Node.js</code>自带的<code>npm</code>，而且新增一步安装<code>vuepress@next</code>依赖（针对使用<code>VuePrss 2.x</code>版本）,
+<code>构建脚本步骤</code>也进行了修改</p>
+</blockquote>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="yaml" data-filename="docs.yaml" data-marked="30,31,34,35"><code><span class="line" data-line="1"><span style="color:#22863A;--shiki-dark:#7EE787">name</span><span style="color:#24292E;--shiki-dark:#E6EDF3">: </span><span style="color:#032F62;--shiki-dark:#A5D6FF">Build and Deploy</span></span>
+<span class="line" data-line="2"></span>
+<span class="line" data-line="3"><span style="color:#005CC5;--shiki-dark:#79C0FF">on</span><span style="color:#24292E;--shiki-dark:#E6EDF3">:</span></span>
+<span class="line" data-line="4"><span style="color:#6A737D;--shiki-dark:#8B949E">  # 每当 push 到 main 分支时触发部署</span></span>
+<span class="line" data-line="5"><span style="color:#22863A;--shiki-dark:#7EE787">  push</span><span style="color:#24292E;--shiki-dark:#E6EDF3">:</span></span>
+<span class="line" data-line="6"><span style="color:#22863A;--shiki-dark:#7EE787">    branches</span><span style="color:#24292E;--shiki-dark:#E6EDF3">: [</span><span style="color:#032F62;--shiki-dark:#A5D6FF">main</span><span style="color:#24292E;--shiki-dark:#E6EDF3">]</span></span>
+<span class="line" data-line="7"><span style="color:#6A737D;--shiki-dark:#8B949E">  # 手动触发部署</span></span>
+<span class="line" data-line="8"><span style="color:#22863A;--shiki-dark:#7EE787">  workflow_dispatch</span><span style="color:#24292E;--shiki-dark:#E6EDF3">:</span></span>
+<span class="line" data-line="9"></span>
+<span class="line" data-line="10"><span style="color:#22863A;--shiki-dark:#7EE787">jobs</span><span style="color:#24292E;--shiki-dark:#E6EDF3">:</span></span>
+<span class="line" data-line="11"><span style="color:#22863A;--shiki-dark:#7EE787">  build-and-deploy</span><span style="color:#24292E;--shiki-dark:#E6EDF3">:</span></span>
+<span class="line" data-line="12"><span style="color:#22863A;--shiki-dark:#7EE787">    runs-on</span><span style="color:#24292E;--shiki-dark:#E6EDF3">: </span><span style="color:#032F62;--shiki-dark:#A5D6FF">ubuntu-latest</span></span>
+<span class="line" data-line="13"></span>
+<span class="line" data-line="14"><span style="color:#22863A;--shiki-dark:#7EE787">    steps</span><span style="color:#24292E;--shiki-dark:#E6EDF3">:</span></span>
+<span class="line" data-line="15"><span style="color:#24292E;--shiki-dark:#E6EDF3">      - </span><span style="color:#22863A;--shiki-dark:#7EE787">name</span><span style="color:#24292E;--shiki-dark:#E6EDF3">: </span><span style="color:#032F62;--shiki-dark:#A5D6FF">Checkout</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> </span></span>
+<span class="line" data-line="16"><span style="color:#22863A;--shiki-dark:#7EE787">        uses</span><span style="color:#24292E;--shiki-dark:#E6EDF3">: </span><span style="color:#032F62;--shiki-dark:#A5D6FF">actions/checkout@v3</span></span>
+<span class="line" data-line="17"><span style="color:#22863A;--shiki-dark:#7EE787">        with</span><span style="color:#24292E;--shiki-dark:#E6EDF3">:</span></span>
+<span class="line" data-line="18"><span style="color:#6A737D;--shiki-dark:#8B949E">          # “最近更新时间” 等 git 日志相关信息，需要拉取全部提交记录</span></span>
+<span class="line" data-line="19"><span style="color:#22863A;--shiki-dark:#7EE787">          fetch-depth</span><span style="color:#24292E;--shiki-dark:#E6EDF3">: </span><span style="color:#005CC5;--shiki-dark:#79C0FF">0</span></span>
+<span class="line" data-line="20"></span>
+<span class="line" data-line="21"><span style="color:#24292E;--shiki-dark:#E6EDF3">      - </span><span style="color:#22863A;--shiki-dark:#7EE787">name</span><span style="color:#24292E;--shiki-dark:#E6EDF3">: </span><span style="color:#032F62;--shiki-dark:#A5D6FF">Setup Node.js</span></span>
+<span class="line" data-line="22"><span style="color:#22863A;--shiki-dark:#7EE787">        uses</span><span style="color:#24292E;--shiki-dark:#E6EDF3">: </span><span style="color:#032F62;--shiki-dark:#A5D6FF">actions/setup-node@v3</span></span>
+<span class="line" data-line="23"><span style="color:#22863A;--shiki-dark:#7EE787">        with</span><span style="color:#24292E;--shiki-dark:#E6EDF3">:</span></span>
+<span class="line" data-line="24"><span style="color:#6A737D;--shiki-dark:#8B949E">          # 选择要使用的 node 版本</span></span>
+<span class="line" data-line="25"><span style="color:#22863A;--shiki-dark:#7EE787">          node-version</span><span style="color:#24292E;--shiki-dark:#E6EDF3">: </span><span style="color:#005CC5;--shiki-dark:#79C0FF">16</span></span>
+<span class="line" data-line="26"><span style="color:#6A737D;--shiki-dark:#8B949E">          # 缓存 npm 依赖</span></span>
+<span class="line" data-line="27"><span style="color:#22863A;--shiki-dark:#7EE787">          cache</span><span style="color:#24292E;--shiki-dark:#E6EDF3">: </span><span style="color:#032F62;--shiki-dark:#A5D6FF">npm</span></span>
+<span class="line" data-line="28"></span>
+<span class="line" data-line="29"><span style="color:#6A737D;--shiki-dark:#8B949E">      # 安装VuePress（基于VuePress 2.x）</span></span>
+<span class="line fence-marked" data-line="30"><span style="color:#24292E;--shiki-dark:#E6EDF3">      - </span><span style="color:#22863A;--shiki-dark:#7EE787">name</span><span style="color:#24292E;--shiki-dark:#E6EDF3">: </span><span style="color:#032F62;--shiki-dark:#A5D6FF">Install VuePress</span></span>
+<span class="line fence-marked" data-line="31"><span style="color:#22863A;--shiki-dark:#7EE787">        run</span><span style="color:#24292E;--shiki-dark:#E6EDF3">: </span><span style="color:#032F62;--shiki-dark:#A5D6FF">npm install -D vuepress@next</span></span>
+<span class="line" data-line="32"></span>
+<span class="line" data-line="33"><span style="color:#6A737D;--shiki-dark:#8B949E">      # 运行构建脚本（使用npm命令）</span></span>
+<span class="line fence-marked" data-line="34"><span style="color:#24292E;--shiki-dark:#E6EDF3">      - </span><span style="color:#22863A;--shiki-dark:#7EE787">name</span><span style="color:#24292E;--shiki-dark:#E6EDF3">: </span><span style="color:#032F62;--shiki-dark:#A5D6FF">Build VuePress site</span></span>
+<span class="line fence-marked" data-line="35"><span style="color:#22863A;--shiki-dark:#7EE787">        run</span><span style="color:#24292E;--shiki-dark:#E6EDF3">: </span><span style="color:#032F62;--shiki-dark:#A5D6FF">npm run docs:build</span></span>
+<span class="line" data-line="36"></span>
+<span class="line" data-line="37"><span style="color:#6A737D;--shiki-dark:#8B949E">      # 查看 workflow 的文档来获取更多信息</span></span>
+<span class="line" data-line="38"><span style="color:#6A737D;--shiki-dark:#8B949E">      # @see https://github.com/crazy-max/ghaction-github-pages</span></span>
+<span class="line" data-line="39"><span style="color:#24292E;--shiki-dark:#E6EDF3">      - </span><span style="color:#22863A;--shiki-dark:#7EE787">name</span><span style="color:#24292E;--shiki-dark:#E6EDF3">: </span><span style="color:#032F62;--shiki-dark:#A5D6FF">Deploy to GitHub Pages</span></span>
+<span class="line" data-line="40"><span style="color:#22863A;--shiki-dark:#7EE787">        uses</span><span style="color:#24292E;--shiki-dark:#E6EDF3">: </span><span style="color:#032F62;--shiki-dark:#A5D6FF">crazy-max/ghaction-github-pages@v2</span></span>
+<span class="line" data-line="41"><span style="color:#22863A;--shiki-dark:#7EE787">        with</span><span style="color:#24292E;--shiki-dark:#E6EDF3">:</span></span>
+<span class="line" data-line="42"><span style="color:#6A737D;--shiki-dark:#8B949E">          # 部署到 gh-pages 分支</span></span>
+<span class="line" data-line="43"><span style="color:#22863A;--shiki-dark:#7EE787">          target_branch</span><span style="color:#24292E;--shiki-dark:#E6EDF3">: </span><span style="color:#032F62;--shiki-dark:#A5D6FF">gh-pages</span></span>
+<span class="line" data-line="44"><span style="color:#6A737D;--shiki-dark:#8B949E">          # 部署目录为 VuePress 的默认输出目录</span></span>
+<span class="line" data-line="45"><span style="color:#22863A;--shiki-dark:#7EE787">          build_dir</span><span style="color:#24292E;--shiki-dark:#E6EDF3">: </span><span style="color:#032F62;--shiki-dark:#A5D6FF">docs/.vuepress/dist</span></span>
+<span class="line" data-line="46"><span style="color:#22863A;--shiki-dark:#7EE787">        env</span><span style="color:#24292E;--shiki-dark:#E6EDF3">:</span></span>
+<span class="line" data-line="47"><span style="color:#6A737D;--shiki-dark:#8B949E">          # @see https://docs.github.com/cn/actions/reference/authentication-in-a-workflow#about-the-github_token-secret</span></span>
+<span class="line" data-line="48"><span style="color:#22863A;--shiki-dark:#7EE787">          GITHUB_TOKEN</span><span style="color:#24292E;--shiki-dark:#E6EDF3">: </span><span style="color:#032F62;--shiki-dark:#A5D6FF">${{ secrets.GITHUB_TOKEN }}</span></span></code></pre></div></article></main><footer class="site-footer" data-astro-cid-z4jru4n3><div class="shell" data-astro-cid-z4jru4n3><p data-astro-cid-z4jru4n3>© 2022–2026 UniStart · 心在哪里，家在哪里</p><p data-astro-cid-z4jru4n3><a href="https://github.com/unistart2" rel="me noopener noreferrer" target="_blank" data-astro-cid-z4jru4n3>GitHub</a><span aria-hidden="true" data-astro-cid-z4jru4n3> · </span><a href="/rss.xml" data-astro-cid-z4jru4n3>RSS</a></p></div></footer><script>
+      const toggle = document.querySelector('[data-theme-toggle]')
+      toggle?.addEventListener('click', () => {
+        const root = document.documentElement
+        const isDark =
+          root.dataset.theme === 'dark' ||
+          (!root.dataset.theme && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        const next = isDark ? 'light' : 'dark'
+        root.dataset.theme = next
+        try {
+          localStorage.setItem('theme', next)
+        } catch {}
+      })
+    </script></body></html>

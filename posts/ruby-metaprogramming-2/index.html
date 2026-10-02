@@ -1,0 +1,101 @@
+<!DOCTYPE html><html lang="zh-CN" data-astro-cid-z4jru4n3><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ruby元编程（二） - UniStart&#39;s Blog</title><meta name="description" content="个人博客 —— 学习笔记与工程实践"><link rel="canonical" href="https://unistart2.github.io/posts/ruby-metaprogramming-2/"><link rel="alternate" type="application/rss+xml" title="UniStart's Blog" href="/rss.xml"><link rel="icon" href="/favicon.ico"><meta name="generator" content="Astro v7.3.5"><meta name="theme-color" media="(prefers-color-scheme: light)" content="#f4f5f8"><meta name="theme-color" media="(prefers-color-scheme: dark)" content="#16181d"><script>
+      try {
+        const saved = localStorage.getItem('theme')
+        if (saved === 'light' || saved === 'dark') document.documentElement.dataset.theme = saved
+      } catch {}
+    </script><link rel="stylesheet" href="/_astro/BaseLayout.Dro-nEvJ.css"></head><body data-astro-cid-z4jru4n3><div class="backdrop" aria-hidden="true" data-astro-cid-z4jru4n3></div><header class="site-header" data-astro-cid-z4jru4n3><div class="shell" data-astro-cid-z4jru4n3><a class="site-title" href="/" data-astro-cid-z4jru4n3><img class="avatar" src="/avatar.jpg" alt="" width="36" height="36" data-astro-cid-z4jru4n3><span data-astro-cid-z4jru4n3>UniStart&#39;s Blog<span class="site-tagline" data-astro-cid-z4jru4n3>心在哪里，家在哪里</span></span></a><div class="header-actions" data-astro-cid-z4jru4n3><nav aria-label="主导航" data-astro-cid-z4jru4n3><ul class="site-nav" data-astro-cid-z4jru4n3><li data-astro-cid-z4jru4n3><a href="/" data-astro-cid-z4jru4n3>首页</a></li><li data-astro-cid-z4jru4n3><a href="/archives/" data-astro-cid-z4jru4n3>归档</a></li><li data-astro-cid-z4jru4n3><a href="/categories/" data-astro-cid-z4jru4n3>分类</a></li><li data-astro-cid-z4jru4n3><a href="/tags/" data-astro-cid-z4jru4n3>标签</a></li><li data-astro-cid-z4jru4n3><a href="/friends/" data-astro-cid-z4jru4n3>友链</a></li><li data-astro-cid-z4jru4n3><a href="/links/" data-astro-cid-z4jru4n3>链接</a></li><li data-astro-cid-z4jru4n3><a href="/tools/" data-astro-cid-z4jru4n3>工具</a></li><li data-astro-cid-z4jru4n3><a href="/about/" data-astro-cid-z4jru4n3>关于</a></li></ul></nav><button class="theme-toggle" type="button" data-theme-toggle aria-label="切换深浅色" data-astro-cid-z4jru4n3><span aria-hidden="true" data-astro-cid-z4jru4n3>◐</span></button></div></div></header><main class="layout shell" data-astro-cid-z4jru4n3><article><header class="post-header"><h1>Ruby元编程（二）</h1><div class="post-meta"><time datetime="2023-02-24T11:48:39.000Z">2023-02-24</time><span>分类<ul><li><a href="/categories/Ruby/">Ruby</a></li></ul></span><span>标签<ul><li><a href="/tags/Ruby/">#Ruby</a></li><li><a href="/tags/Metaprogramming/">#Metaprogramming</a></li></ul></span></div></header><div class="prose"><div class="note info" data-callout="info"><p>参考书籍《Ruby元编程（第二版）》
+Ruby版本: 书上使用的是2.x，自己使用的3.1.2</p></div>
+<h2 id="关于self和私有方法调用之间的问题">关于self和私有方法调用之间的问题</h2>
+<h3 id="ruby27之前版本">Ruby2.7之前版本</h3>
+<blockquote>
+<p>在<span class="red">Ruby 2.7之前</span>，可以<ins class="dot">使用self调用一个私有写入/赋值方法</ins>，<ins class="dot">但是使用self调用任何其他私有方法将抛出<span class="blue">NoMethodError</span></ins>。</p>
+</blockquote>
+<p>示例如下：</p>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="ruby" data-filename="ruby2.7以前" data-marked="4"><code><span class="line" data-line="1"><span style="color:#D73A49;--shiki-dark:#FF7B72">class</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> Counter</span></span>
+<span class="line" data-line="2"><span style="color:#D73A49;--shiki-dark:#FF7B72">  def</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF"> reset</span></span>
+<span class="line" data-line="3"><span style="color:#005CC5;--shiki-dark:#79C0FF">    self</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">count</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> =</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> 0</span><span style="color:#6A737D;--shiki-dark:#8B949E"> # 允许调用</span></span>
+<span class="line fence-marked" data-line="4"><span style="color:#005CC5;--shiki-dark:#79C0FF">    puts</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> self</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">count</span><span style="color:#6A737D;--shiki-dark:#8B949E"> # 抛出异常</span></span>
+<span class="line" data-line="5"><span style="color:#D73A49;--shiki-dark:#FF7B72">  end</span></span>
+<span class="line" data-line="6"></span>
+<span class="line" data-line="7"><span style="color:#D73A49;--shiki-dark:#FF7B72">  private</span></span>
+<span class="line" data-line="8"><span style="color:#D73A49;--shiki-dark:#FF7B72">  attr_accessor</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> :count</span></span>
+<span class="line" data-line="9"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span>
+<span class="line" data-line="10"></span>
+<span class="line" data-line="11"><span style="color:#005CC5;--shiki-dark:#79C0FF">Counter</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#D73A49;--shiki-dark:#FF7B72">new</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">reset</span></span></code></pre>
+<p>上面的示例执行<code>self.count = 0</code>语句时，不会出现问题，但是执行到<code>puts self.count</code>语句时就会抛出<span class="blue">NoMethodError</span>错误。<span class="hint" data-hint="这和Java/Python等编程语言中的this/self的用法不一致">这种前后不一致的行为让人感到十分困惑</span>。</p>
+<h3 id="ruby27及以后版本">Ruby2.7及以后版本</h3>
+<blockquote>
+<p>在<span class="red">Ruby 2.7</span>版本，Ruby修复这种让人感到困惑的不一致行为。换而言之，从<span class="red">Ruby 2.7</span>开始，可以使用self调用任何私有方法，就像其他语言那样。</p>
+</blockquote>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="ruby" data-filename="ruby2.7及以后" data-marked="4"><code><span class="line" data-line="1"><span style="color:#D73A49;--shiki-dark:#FF7B72">class</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> Counter</span></span>
+<span class="line" data-line="2"><span style="color:#D73A49;--shiki-dark:#FF7B72">  def</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF"> reset</span></span>
+<span class="line" data-line="3"><span style="color:#005CC5;--shiki-dark:#79C0FF">    self</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">count</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> =</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> 0</span><span style="color:#6A737D;--shiki-dark:#8B949E"> # 允许调用</span></span>
+<span class="line fence-marked" data-line="4"><span style="color:#005CC5;--shiki-dark:#79C0FF">    puts</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> self</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">count</span><span style="color:#6A737D;--shiki-dark:#8B949E"> # 允许调用</span></span>
+<span class="line" data-line="5"><span style="color:#D73A49;--shiki-dark:#FF7B72">  end</span></span>
+<span class="line" data-line="6"><span style="color:#D73A49;--shiki-dark:#FF7B72">  private</span></span>
+<span class="line" data-line="7"><span style="color:#D73A49;--shiki-dark:#FF7B72">  attr_accessor</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> :count</span></span>
+<span class="line" data-line="8"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span>
+<span class="line" data-line="9"><span style="color:#005CC5;--shiki-dark:#79C0FF">Counter</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#D73A49;--shiki-dark:#FF7B72">new</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">reset</span></span></code></pre>
+<h2 id="细化refine">细化（Refine）</h2>
+<blockquote>
+<p>使用<span class="red">打开类</span>的方式扩展代码，有一个很明显的问题：修改时全局性的，很有可能无意中影响其他代码的正常使用。但通过<span class="red">细化</span>的方式可以使修改只作用于局部，很好的解决了之前的问题。</p>
+</blockquote>
+<h3 id="细化的定义方式">细化的定义方式</h3>
+<blockquote>
+<p>使用<span class="red">细化</span>，首先需要先定一个模块，然后在这个模块的定义中调用<span class="red">refine</span>方法。</p>
+</blockquote>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="ruby" data-filename="示例代码" data-marked="2"><code><span class="line" data-line="1"><span style="color:#D73A49;--shiki-dark:#FF7B72">module</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> StringExtentions</span></span>
+<span class="line fence-marked" data-line="2"><span style="color:#D73A49;--shiki-dark:#FF7B72">  refine</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> String</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> do</span></span>
+<span class="line" data-line="3"><span style="color:#D73A49;--shiki-dark:#FF7B72">    def</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF"> something</span></span>
+<span class="line" data-line="4"><span style="color:#032F62;--shiki-dark:#A5D6FF">      "something..."</span></span>
+<span class="line" data-line="5"><span style="color:#D73A49;--shiki-dark:#FF7B72">    end</span></span>
+<span class="line" data-line="6"><span style="color:#D73A49;--shiki-dark:#FF7B72">  end</span></span>
+<span class="line" data-line="7"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span></code></pre>
+<h3 id="通过using让细化生效">通过using让细化生效</h3>
+<blockquote>
+<p>在上述代码中，为<span class="red">String类</span>添加了一个<span class="red">something方法</span>，但<span class="red">细化</span>在默认情况下并不生效，需要使用<span class="red">using</span>让修改生效。</p>
+</blockquote>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="ruby" data-filename="示例代码" data-marked="9"><code><span class="line" data-line="1"><span style="color:#D73A49;--shiki-dark:#FF7B72">module</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> StringExtentions</span></span>
+<span class="line" data-line="2"><span style="color:#D73A49;--shiki-dark:#FF7B72">  refine</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> String</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> do</span></span>
+<span class="line" data-line="3"><span style="color:#D73A49;--shiki-dark:#FF7B72">    def</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF"> something</span></span>
+<span class="line" data-line="4"><span style="color:#032F62;--shiki-dark:#A5D6FF">      "something..."</span></span>
+<span class="line" data-line="5"><span style="color:#D73A49;--shiki-dark:#FF7B72">    end</span></span>
+<span class="line" data-line="6"><span style="color:#D73A49;--shiki-dark:#FF7B72">  end</span></span>
+<span class="line" data-line="7"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span>
+<span class="line" data-line="8"></span>
+<span class="line fence-marked" data-line="9"><span style="color:#6A737D;--shiki-dark:#8B949E"># 在当前文件内生效</span></span>
+<span class="line" data-line="10"><span style="color:#D73A49;--shiki-dark:#FF7B72">using</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> StringExtentions</span></span>
+<span class="line" data-line="11"><span style="color:#032F62;--shiki-dark:#A5D6FF">"My Something"</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">something</span><span style="color:#6A737D;--shiki-dark:#8B949E"> #=> something...</span></span></code></pre>
+<blockquote>
+<p>从<span class="red">Ruby 2.1</span>开始，可以在一个模块内调用<span class="red">using</span>方法，此时<span class="red">细化</span>的作用范围仅限于当前模块。</p>
+</blockquote>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="ruby" data-filename="示例代码" data-marked="13,17"><code><span class="line" data-line="1"><span style="color:#D73A49;--shiki-dark:#FF7B72">module</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> StringExtentions</span></span>
+<span class="line" data-line="2"><span style="color:#D73A49;--shiki-dark:#FF7B72">  refine</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> String</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> do</span></span>
+<span class="line" data-line="3"><span style="color:#6A737D;--shiki-dark:#8B949E">    # 为String类修改了reverse方法的定义</span></span>
+<span class="line" data-line="4"><span style="color:#D73A49;--shiki-dark:#FF7B72">    def</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF"> reverse</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> </span></span>
+<span class="line" data-line="5"><span style="color:#032F62;--shiki-dark:#A5D6FF">      "My reverse method..."</span></span>
+<span class="line" data-line="6"><span style="color:#D73A49;--shiki-dark:#FF7B72">    end</span></span>
+<span class="line" data-line="7"><span style="color:#D73A49;--shiki-dark:#FF7B72">  end</span></span>
+<span class="line" data-line="8"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span>
+<span class="line" data-line="9"></span>
+<span class="line" data-line="10"><span style="color:#D73A49;--shiki-dark:#FF7B72">module</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> StringStuff</span></span>
+<span class="line" data-line="11"><span style="color:#6A737D;--shiki-dark:#8B949E">  # 在StringStuff模块内生效</span></span>
+<span class="line" data-line="12"><span style="color:#D73A49;--shiki-dark:#FF7B72">  using</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> StringExtentions</span></span>
+<span class="line fence-marked" data-line="13"><span style="color:#032F62;--shiki-dark:#A5D6FF">  "test"</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">reverse</span><span style="color:#6A737D;--shiki-dark:#8B949E"> #=> "My reverse method..."</span></span>
+<span class="line" data-line="14"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span>
+<span class="line" data-line="15"></span>
+<span class="line" data-line="16"><span style="color:#6A737D;--shiki-dark:#8B949E"># 出StringStuff模块失效</span></span>
+<span class="line fence-marked" data-line="17"><span style="color:#032F62;--shiki-dark:#A5D6FF">"test"</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">reverse</span><span style="color:#6A737D;--shiki-dark:#8B949E"> #=> "tset"</span></span></code></pre></div></article></main><footer class="site-footer" data-astro-cid-z4jru4n3><div class="shell" data-astro-cid-z4jru4n3><p data-astro-cid-z4jru4n3>© 2022–2026 UniStart · 心在哪里，家在哪里</p><p data-astro-cid-z4jru4n3><a href="https://github.com/unistart2" rel="me noopener noreferrer" target="_blank" data-astro-cid-z4jru4n3>GitHub</a><span aria-hidden="true" data-astro-cid-z4jru4n3> · </span><a href="/rss.xml" data-astro-cid-z4jru4n3>RSS</a></p></div></footer><script>
+      const toggle = document.querySelector('[data-theme-toggle]')
+      toggle?.addEventListener('click', () => {
+        const root = document.documentElement
+        const isDark =
+          root.dataset.theme === 'dark' ||
+          (!root.dataset.theme && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        const next = isDark ? 'light' : 'dark'
+        root.dataset.theme = next
+        try {
+          localStorage.setItem('theme', next)
+        } catch {}
+      })
+    </script></body></html>

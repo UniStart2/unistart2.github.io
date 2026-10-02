@@ -1,0 +1,224 @@
+<!DOCTYPE html><html lang="zh-CN" data-astro-cid-z4jru4n3><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ruby元编程（一） - UniStart&#39;s Blog</title><meta name="description" content="个人博客 —— 学习笔记与工程实践"><link rel="canonical" href="https://unistart2.github.io/posts/ruby-metaprogramming-1/"><link rel="alternate" type="application/rss+xml" title="UniStart's Blog" href="/rss.xml"><link rel="icon" href="/favicon.ico"><meta name="generator" content="Astro v7.3.5"><meta name="theme-color" media="(prefers-color-scheme: light)" content="#f4f5f8"><meta name="theme-color" media="(prefers-color-scheme: dark)" content="#16181d"><script>
+      try {
+        const saved = localStorage.getItem('theme')
+        if (saved === 'light' || saved === 'dark') document.documentElement.dataset.theme = saved
+      } catch {}
+    </script><link rel="stylesheet" href="/_astro/BaseLayout.Dro-nEvJ.css"></head><body data-astro-cid-z4jru4n3><div class="backdrop" aria-hidden="true" data-astro-cid-z4jru4n3></div><header class="site-header" data-astro-cid-z4jru4n3><div class="shell" data-astro-cid-z4jru4n3><a class="site-title" href="/" data-astro-cid-z4jru4n3><img class="avatar" src="/avatar.jpg" alt="" width="36" height="36" data-astro-cid-z4jru4n3><span data-astro-cid-z4jru4n3>UniStart&#39;s Blog<span class="site-tagline" data-astro-cid-z4jru4n3>心在哪里，家在哪里</span></span></a><div class="header-actions" data-astro-cid-z4jru4n3><nav aria-label="主导航" data-astro-cid-z4jru4n3><ul class="site-nav" data-astro-cid-z4jru4n3><li data-astro-cid-z4jru4n3><a href="/" data-astro-cid-z4jru4n3>首页</a></li><li data-astro-cid-z4jru4n3><a href="/archives/" data-astro-cid-z4jru4n3>归档</a></li><li data-astro-cid-z4jru4n3><a href="/categories/" data-astro-cid-z4jru4n3>分类</a></li><li data-astro-cid-z4jru4n3><a href="/tags/" data-astro-cid-z4jru4n3>标签</a></li><li data-astro-cid-z4jru4n3><a href="/friends/" data-astro-cid-z4jru4n3>友链</a></li><li data-astro-cid-z4jru4n3><a href="/links/" data-astro-cid-z4jru4n3>链接</a></li><li data-astro-cid-z4jru4n3><a href="/tools/" data-astro-cid-z4jru4n3>工具</a></li><li data-astro-cid-z4jru4n3><a href="/about/" data-astro-cid-z4jru4n3>关于</a></li></ul></nav><button class="theme-toggle" type="button" data-theme-toggle aria-label="切换深浅色" data-astro-cid-z4jru4n3><span aria-hidden="true" data-astro-cid-z4jru4n3>◐</span></button></div></div></header><main class="layout shell" data-astro-cid-z4jru4n3><article><header class="post-header"><h1>Ruby元编程（一）</h1><div class="post-meta"><time datetime="2022-11-28T16:38:48.000Z">2022-11-28</time><span>分类<ul><li><a href="/categories/Ruby/">Ruby</a></li></ul></span><span>标签<ul><li><a href="/tags/Ruby/">#Ruby</a></li><li><a href="/tags/Metaprogramming/">#Metaprogramming</a></li></ul></span></div></header><div class="prose"><div class="note info" data-callout="info"><p>参考书籍《Ruby元编程（第二版）》
+Ruby版本: 书上使用的是2.x，自己使用的3.1.2</p></div>
+<h2 id="打开类">打开类</h2>
+<blockquote>
+<p>Ruby中的<span class="red">class关键字只有在第一次使用时是作为类型声明</span>语句使用，用于定义一个目前不存在的类。
+<span class="red">对于已经存在的类，class关键字的作用更像是一个作用域操作符</span>，把你带到类的上下文中，让你可以在里面定义方法。
+这种重新打开已有类并对之进行动态修改的方式就称为<ins class="dot red">打开类</ins>。
+在Ruby中<ins class="wavy">标准库中的类也是可以重新打开的</ins>。</p>
+</blockquote>
+<ol>
+<li>打开类的实例</li>
+</ol>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="ruby" data-filename="打开类"><code><span class="line" data-line="1"><span style="color:#6A737D;--shiki-dark:#8B949E"># monetize是Ruby中一个管理资金和现金的工具类</span></span>
+<span class="line" data-line="2"><span style="color:#6A737D;--shiki-dark:#8B949E"># 没有安装过这个包的话可以使用 gem install 命名安装</span></span>
+<span class="line" data-line="3"><span style="color:#D73A49;--shiki-dark:#FF7B72">require</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> "monetize"</span></span>
+<span class="line" data-line="4"><span style="color:#6A737D;--shiki-dark:#8B949E"># 创建Money对象</span></span>
+<span class="line" data-line="5"><span style="color:#E36209;--shiki-dark:#FFA657">bargain_price</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> =</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> Monetize</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">from_numeric</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#005CC5;--shiki-dark:#79C0FF">99</span><span style="color:#24292E;--shiki-dark:#E6EDF3">, </span><span style="color:#032F62;--shiki-dark:#A5D6FF">"USD"</span><span style="color:#24292E;--shiki-dark:#E6EDF3">)</span></span>
+<span class="line" data-line="6"><span style="color:#24292E;--shiki-dark:#E6EDF3">bargain_price.</span><span style="color:#005CC5;--shiki-dark:#79C0FF">format</span></span>
+<span class="line" data-line="7"></span>
+<span class="line" data-line="8"><span style="color:#6A737D;--shiki-dark:#8B949E"># 这个类库还提供了一种便捷形式：</span></span>
+<span class="line" data-line="9"><span style="color:#6A737D;--shiki-dark:#8B949E"># 可以通过Numeric#to_money方法，把任意数值转为一个Money对象</span></span>
+<span class="line" data-line="10"><span style="color:#E36209;--shiki-dark:#FFA657">standard_price</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> =</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> 100</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">to_money</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#032F62;--shiki-dark:#A5D6FF">"USD"</span><span style="color:#24292E;--shiki-dark:#E6EDF3">)</span></span>
+<span class="line" data-line="11"><span style="color:#24292E;--shiki-dark:#E6EDF3">standard_price.</span><span style="color:#005CC5;--shiki-dark:#79C0FF">format</span></span></code></pre>
+<blockquote>
+<p>monetize包就是通过<span class="red">打开类</span>的方式，对Numeric这个Ruby标准类进行扩展的。
+在 <span class="red">gems/monetize-1.12.0/lib/monetize/core_extensions/numberic.rb</span> 中可以找到如下代码</p>
+</blockquote>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="ruby"><code><span class="line" data-line="1"><span style="color:#D73A49;--shiki-dark:#FF7B72">class</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> Numeric</span></span>
+<span class="line" data-line="2"><span style="color:#D73A49;--shiki-dark:#FF7B72">  def</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF"> to_money</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(currency </span><span style="color:#D73A49;--shiki-dark:#FF7B72">=</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> nil</span><span style="color:#24292E;--shiki-dark:#E6EDF3">)</span></span>
+<span class="line" data-line="3"><span style="color:#005CC5;--shiki-dark:#79C0FF">    Monetize</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">from_numeric</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#005CC5;--shiki-dark:#79C0FF">self</span><span style="color:#24292E;--shiki-dark:#E6EDF3">, currency </span><span style="color:#D73A49;--shiki-dark:#FF7B72">||</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> Money</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">default_currency</span><span style="color:#24292E;--shiki-dark:#E6EDF3">)</span></span>
+<span class="line" data-line="4"><span style="color:#D73A49;--shiki-dark:#FF7B72">  end</span></span>
+<span class="line" data-line="5"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span></code></pre>
+<ol start="2">
+<li>打开类的问题</li>
+</ol>
+<blockquote>
+<p>对标准库类来说，虽然使用<span class="red">打开类</span>的情况是常见的，但是要注意<span class="red">在打开类时<ins class="dot">不要定义和类库中同名的方法</ins></span>。</p>
+</blockquote>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="ruby"><code><span class="line" data-line="1"><span style="color:#6A737D;--shiki-dark:#8B949E"># 假如你打开了Array类并定义replace方法，用于对数组中的元素进行替换</span></span>
+<span class="line" data-line="2"><span style="color:#D73A49;--shiki-dark:#FF7B72">def</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF"> Array</span></span>
+<span class="line" data-line="3"><span style="color:#D73A49;--shiki-dark:#FF7B72">  def</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF"> replace</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(original, replacement)</span></span>
+<span class="line" data-line="4"><span style="color:#005CC5;--shiki-dark:#79C0FF">    self</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">map</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> { |e| e </span><span style="color:#D73A49;--shiki-dark:#FF7B72">==</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> original </span><span style="color:#D73A49;--shiki-dark:#FF7B72">?</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> replcement : e }</span></span>
+<span class="line" data-line="5"><span style="color:#D73A49;--shiki-dark:#FF7B72">  end</span></span>
+<span class="line" data-line="6"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span></code></pre>
+<blockquote>
+<p>因为<span class="red">Array</span>类中原来就有<span class="red">replace</span>方法，在打开类中定义<span class="red">replace</span>方法时，就会覆盖原有的<span class="red">replace</span>方法。
+<ins class="dot">可能导致依赖原有<span class="red">replace</span>方法的一些库、代码块出现异常或错误</ins>。</p>
+</blockquote>
+<h2 id="实例变量方法">实例变量、方法</h2>
+<blockquote>
+<p>和<span class="red">Java</span>这样的静态语言不同，<span class="red">Ruby</span>中<ins class="dot">对象的类和它的实例变量没有关系</ins>。
+当对象调用方法并给实例变量赋值时，才会产生在对象中。因此，<ins class="blue wavy">同一个类创建的不同对象可能会有不同的实例变量</ins>。</p>
+</blockquote>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="ruby" data-filename="实例变量和类"><code><span class="line" data-line="1"><span style="color:#6A737D;--shiki-dark:#8B949E"># Ruby 中实例变量以"@"符号开头</span></span>
+<span class="line" data-line="2"><span style="color:#6A737D;--shiki-dark:#8B949E"># initialize方法作用类似于Java类中的构造方法，只能显示定义一次，不能像Java中进行方法重载</span></span>
+<span class="line" data-line="3"><span style="color:#D73A49;--shiki-dark:#FF7B72">class</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> MyClass</span></span>
+<span class="line" data-line="4"><span style="color:#24292E;--shiki-dark:#E6EDF3">  @filed1 </span><span style="color:#D73A49;--shiki-dark:#FF7B72">=</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> 1</span></span>
+<span class="line" data-line="5"><span style="color:#D73A49;--shiki-dark:#FF7B72">  def</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF"> initialize</span></span>
+<span class="line" data-line="6"><span style="color:#24292E;--shiki-dark:#E6EDF3">    @filed2</span></span>
+<span class="line" data-line="7"><span style="color:#D73A49;--shiki-dark:#FF7B72">  end</span></span>
+<span class="line" data-line="8"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span>
+<span class="line" data-line="9"></span>
+<span class="line" data-line="10"><span style="color:#E36209;--shiki-dark:#FFA657">obj</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> =</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> MyClass</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#D73A49;--shiki-dark:#FF7B72">new</span></span>
+<span class="line" data-line="11"><span style="color:#005CC5;--shiki-dark:#79C0FF">p</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> (obj.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">instance_variables</span><span style="color:#24292E;--shiki-dark:#E6EDF3">) </span><span style="color:#6A737D;--shiki-dark:#8B949E">#=> []</span></span>
+<span class="line" data-line="12"></span>
+<span class="line" data-line="13"><span style="color:#D73A49;--shiki-dark:#FF7B72">class</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> MyClass2</span></span>
+<span class="line" data-line="14"><span style="color:#24292E;--shiki-dark:#E6EDF3">  @filed1 </span><span style="color:#D73A49;--shiki-dark:#FF7B72">=</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> 1</span></span>
+<span class="line" data-line="15"><span style="color:#D73A49;--shiki-dark:#FF7B72">  def</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF"> initialize</span></span>
+<span class="line" data-line="16"><span style="color:#24292E;--shiki-dark:#E6EDF3">    @field2 </span><span style="color:#D73A49;--shiki-dark:#FF7B72">=</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> 1</span><span style="color:#6A737D;--shiki-dark:#8B949E"> # 产生实例变量 @filed2</span></span>
+<span class="line" data-line="17"><span style="color:#D73A49;--shiki-dark:#FF7B72">  end</span></span>
+<span class="line" data-line="18"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span>
+<span class="line" data-line="19"></span>
+<span class="line" data-line="20"><span style="color:#E36209;--shiki-dark:#FFA657">obj2</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> =</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> MyClass2</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#D73A49;--shiki-dark:#FF7B72">new</span></span>
+<span class="line" data-line="21"><span style="color:#005CC5;--shiki-dark:#79C0FF">p</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> (obj2.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">instance_variables</span><span style="color:#24292E;--shiki-dark:#E6EDF3">) </span><span style="color:#6A737D;--shiki-dark:#8B949E">#=> [:@field2]</span></span></code></pre>
+<blockquote>
+<p>除了实例变量外，对象还有方法。通过Oject#methods方法，可以获得一个对象的方法列表。
+但实际上，<ins class="red wavy">一个对象仅包含它的实例变量和其所属类的引用</ins>。<ins class="dot">而<span class="blue">方法是存在对象的类中</span>，这也是同一个类的对象共享相同方法的原因</ins>。</p>
+</blockquote>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="text" data-filename="对象、方法和类的关系图"><code><span class="line" data-line="1"><span>+------------+ class   +-------------+</span></span>
+<span class="line" data-line="2"><span>|    obj     +-------->|  SomeClass  |</span></span>
+<span class="line" data-line="3"><span>+------------+         +-------------+</span></span>
+<span class="line" data-line="4"><span>|            |         |             |</span></span>
+<span class="line" data-line="5"><span>| @filed = 1 |         |   method1   |</span></span>
+<span class="line" data-line="6"><span>|            |         |             |</span></span>
+<span class="line" data-line="7"><span>|   ....     |         |    ...      |</span></span>
+<span class="line" data-line="8"><span>|            |         |             |</span></span>
+<span class="line" data-line="9"><span>+------------+         |             |</span></span>
+<span class="line" data-line="10"><span>                       +-------------+</span></span></code></pre>
+<h2 id="类的本质">类的本质</h2>
+<h3 id="类是class的对象">类是Class的对象</h3>
+<blockquote>
+<p><ins class="dot"><span class="red">类本身也是对象</span></ins>，类像其他对象一样，也有自己的类，叫做<span class="red">Class</span>。</p>
+</blockquote>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="ruby"><code><span class="line" data-line="1"><span style="color:#005CC5;--shiki-dark:#79C0FF">p</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> "hello"</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">class</span><span style="color:#6A737D;--shiki-dark:#8B949E"> #=> String</span></span>
+<span class="line" data-line="2"><span style="color:#005CC5;--shiki-dark:#79C0FF">p</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> String</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">class</span><span style="color:#6A737D;--shiki-dark:#8B949E"> #=> Class</span></span></code></pre>
+<blockquote>
+<p>把<span class="red">类</span>看作<span class="red">Class</span>的对象的话，那么<span class="red">一个类中的方法就是Class的实例方法</span>。</p>
+</blockquote>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="ruby"><code><span class="line" data-line="1"><span style="color:#6A737D;--shiki-dark:#8B949E"># false 表示忽略继承的方法</span></span>
+<span class="line" data-line="2"><span style="color:#005CC5;--shiki-dark:#79C0FF">p</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> Class</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">instance_methods</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#005CC5;--shiki-dark:#79C0FF">false</span><span style="color:#24292E;--shiki-dark:#E6EDF3">) </span><span style="color:#6A737D;--shiki-dark:#8B949E">#=> [:allocate, :superclass, :subclasses, :new]</span></span></code></pre>
+<blockquote>
+<p>Ruby中除<span class="red">BasicObject</span>这个最顶层类没有父类以外，其他类都有自己的父类，像<span class="red">Array类</span>的父类是<span class="red">Object类</span>，<span class="red">Object类</span>的父类是<span class="red">BasicObject类</span>。
+而<ins class="dot">Class的父类是<span class="red">Module</span></ins>。<ins class="dot">换而言之，每个类都是一个模块</ins>。
+<ins class="wavy">如果希望代码包含（include）到别的代码中，就使用模块（可以用来充当命名空间）；如果希望代码被实例化或者被继承，就使用类</ins>。</p>
+</blockquote>
+<div class="note primary" data-callout="primary"><p><ins class="dot"><span class="red">类</span>就是一个<span class="red">对象</span>（Class类的一个实例）外加一组<span class="red">实例方法</span>和一个对其<span class="red">父类的引用</span></ins></p></div>
+<div class="note warning" data-callout="warning"><p>注意：<ins class="red dot">Class类的类是它本身</ins></p></div>
+<h3 id="类名和常量">类名和常量</h3>
+<blockquote>
+<p>和普通对象一样，<ins class="wavy">类也可以通过引用来访问。变量可以像引用普通对象一样引用类</ins>。</p>
+</blockquote>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="ruby"><code><span class="line" data-line="1"><span style="color:#D73A49;--shiki-dark:#FF7B72">class</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> MyClass</span></span>
+<span class="line" data-line="2"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span>
+<span class="line" data-line="3"><span style="color:#6A737D;--shiki-dark:#8B949E"># my_class也是Class实例的一个引用</span></span>
+<span class="line" data-line="4"><span style="color:#E36209;--shiki-dark:#FFA657">my_class</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> =</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> MyClass</span></span>
+<span class="line" data-line="5"><span style="color:#E36209;--shiki-dark:#FFA657">obj</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> =</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> my_class.</span><span style="color:#D73A49;--shiki-dark:#FF7B72">new</span></span></code></pre>
+<blockquote>
+<p>MyClass和my_class都是对同一个Class类的实例的引用，<ins class="wavy">唯一的区别在于，my_class是变量，而MyClass是一个常量</ins>。
+<ins class="red dot">Ruby中任何以大写字母开头的引用（包括模块名和类名）都是常量</ins>。</p>
+</blockquote>
+<div class="note info" data-callout="info"><p>常量可以通过<span class="red">路径</span>来标识。类似于C++中的域操作符，Ruby中常量的路径使用双冒号进行分隔。</p></div>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="ruby" data-filename="常量路径"><code><span class="line" data-line="1"><span style="color:#D73A49;--shiki-dark:#FF7B72">module</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> M</span></span>
+<span class="line" data-line="2"><span style="color:#D73A49;--shiki-dark:#FF7B72">  class</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> C</span></span>
+<span class="line" data-line="3"><span style="color:#005CC5;--shiki-dark:#79C0FF">    X</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> =</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> 'a content'</span></span>
+<span class="line" data-line="4"><span style="color:#D73A49;--shiki-dark:#FF7B72">  end</span></span>
+<span class="line" data-line="5"><span style="color:#005CC5;--shiki-dark:#79C0FF">  C</span><span style="color:#24292E;--shiki-dark:#E6EDF3">::</span><span style="color:#005CC5;--shiki-dark:#79C0FF">X</span><span style="color:#6A737D;--shiki-dark:#8B949E"> #=> 'a content'</span></span>
+<span class="line" data-line="6"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span>
+<span class="line" data-line="7"><span style="color:#005CC5;--shiki-dark:#79C0FF">M</span><span style="color:#24292E;--shiki-dark:#E6EDF3">::</span><span style="color:#005CC5;--shiki-dark:#79C0FF">C</span><span style="color:#24292E;--shiki-dark:#E6EDF3">::</span><span style="color:#005CC5;--shiki-dark:#79C0FF">X</span><span style="color:#6A737D;--shiki-dark:#8B949E"> #=> 'a content'</span></span></code></pre>
+<div class="note info" data-callout="info"><p><ins class="dot">双冒号开头可以表示路径的根位置</ins></p></div>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="ruby" data-filename="根路径"><code><span class="line" data-line="1"><span style="color:#005CC5;--shiki-dark:#79C0FF">Outer</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> =</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> 'a root-level constant'</span></span>
+<span class="line" data-line="2"><span style="color:#D73A49;--shiki-dark:#FF7B72">module</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> Y</span></span>
+<span class="line" data-line="3"><span style="color:#005CC5;--shiki-dark:#79C0FF">  Inner</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> =</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> 'a constant in Y'</span></span>
+<span class="line" data-line="4"><span style="color:#005CC5;--shiki-dark:#79C0FF">  p</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> Inner</span><span style="color:#6A737D;--shiki-dark:#8B949E"> #=> 'a constant in Y'</span></span>
+<span class="line" data-line="5"><span style="color:#005CC5;--shiki-dark:#79C0FF">  p</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> ::</span><span style="color:#005CC5;--shiki-dark:#79C0FF">Outer</span><span style="color:#6A737D;--shiki-dark:#8B949E"> #=> 'a root-level constant'</span></span>
+<span class="line" data-line="6"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span></code></pre>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line" data-line="1"><span>对象模型图</span></span>
+<span class="line" data-line="2"><span>                       +-------------+</span></span>
+<span class="line" data-line="3"><span>                       |             |</span></span>
+<span class="line" data-line="4"><span>                       | BasicObject |</span></span>
+<span class="line" data-line="5"><span>                       +-------------+  class</span></span>
+<span class="line" data-line="6"><span>                       |             +------------------------------------+</span></span>
+<span class="line" data-line="7"><span>                       |    ...      |                                    |</span></span>
+<span class="line" data-line="8"><span>                       |             |                                    |</span></span>
+<span class="line" data-line="9"><span>                       +-------------+                                    |</span></span>
+<span class="line" data-line="10"><span>                              ^                                           |</span></span>
+<span class="line" data-line="11"><span>                              |                                           |</span></span>
+<span class="line" data-line="12"><span>                              |  superclass                               |</span></span>
+<span class="line" data-line="13"><span>                              |                                           |</span></span>
+<span class="line" data-line="14"><span>                       +------+------+           +-------------+          |</span></span>
+<span class="line" data-line="15"><span>                       |             |           |             |          |</span></span>
+<span class="line" data-line="16"><span>                       |   Object    +------+    |   Module    |          |</span></span>
+<span class="line" data-line="17"><span>                       +-------------+      |    +-------------+ class    |</span></span>
+<span class="line" data-line="18"><span>                       |             |      |    |             +-------+  |</span></span>
+<span class="line" data-line="19"><span>                       |    ...      |      |    |    ...      |       |  |</span></span>
+<span class="line" data-line="20"><span>                       |             |      |    |             |       |  |</span></span>
+<span class="line" data-line="21"><span>                       +-------------+      |    +-------------+       |  |</span></span>
+<span class="line" data-line="22"><span>                              ^             |           ^              |  |</span></span>
+<span class="line" data-line="23"><span>                              |             |           |              |  |</span></span>
+<span class="line" data-line="24"><span>                              | superclass  |           | superclass   |  |</span></span>
+<span class="line" data-line="25"><span>+--------+                    |             |           |              |  |</span></span>
+<span class="line" data-line="26"><span>|  obj1  |             +------+------+      |    +------+-------+      |  |</span></span>
+<span class="line" data-line="27"><span>|        +--+          |             |      +--->|              |      |  |</span></span>
+<span class="line" data-line="28"><span>+--------+  | class    |             |           |              |&#x3C;-----+  |</span></span>
+<span class="line" data-line="29"><span>            +--------->|   MyClass   |  class    |    Class     |         |</span></span>
+<span class="line" data-line="30"><span>                       +-------------+---------->+--------------+         |</span></span>
+<span class="line" data-line="31"><span>+--------+  +--------->|    ...      |           |     ...      |         |</span></span>
+<span class="line" data-line="32"><span>|  obj2  |  | class    |             |           |              |&#x3C;--------+</span></span>
+<span class="line" data-line="33"><span>|        +--+          +-------------+           +-----------+--+</span></span>
+<span class="line" data-line="34"><span>+--------+                                            ^      |</span></span>
+<span class="line" data-line="35"><span>                                                      |      |</span></span>
+<span class="line" data-line="36"><span>                                                      +------+</span></span>
+<span class="line" data-line="37"><span>                                                        class</span></span></code></pre>
+<h2 id="方法查找">方法查找</h2>
+<p>方法查找相关的两个概念：</p>
+<ol>
+<li>接收者（receiver）</li>
+</ol>
+<blockquote>
+<p><span class="red">接收者</span>就是调用方法所在的对象。比如，my_string.reverse()语句中，my_string就是接收者。</p>
+</blockquote>
+<ol start="2">
+<li>祖先链（ancestors chain）</li>
+</ol>
+<blockquote>
+<p>从<span class="red">当前类</span>开始向上查找<span class="red">超类</span>，直到找到<span class="red">BasicObject类</span>为止，<ins class="dot">所<span class="red">经过的类路径</span>就称为该类的<span class="red">祖先链</span></ins></p>
+</blockquote>
+<div class="note info" data-callout="info"><p><ins class="wavy">方法查找的过程：Ruby首先在<span class="red">接收者的类中查找</span>，然后再顺着<span class="red">祖先链</span>向上查找，直到找到这个方法为止，如果找到<span class="red">BasicObject</span>还没有找到会报错（<span class="red">NoMethodError</span>）</ins></p></div>
+<div class="note info" data-callout="info"><p><ins class="red dot">祖先链中也包括模块</ins>。当一个模块包含在一个类（或一个模块）中时，Ruby会把这个模块加入该类的祖先链中。可以使用<span class="red">include</span>和<span class="blue">prepend</span>将模块插入到一个类的祖先链中，<span class="red">include</span>在祖先链的插入位置是<span class="red">当前类的上方</span>，<span class="blue">prepend</span>则是<span class="blue">当前类的下方</span>。可以通过<span class="red">ancestors</span>方法获得类的祖先链</p></div>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="ruby" data-filename="include和prepend"><code><span class="line" data-line="1"><span style="color:#6A737D;--shiki-dark:#8B949E"># 定义一个模块M1</span></span>
+<span class="line" data-line="2"><span style="color:#D73A49;--shiki-dark:#FF7B72">module</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> M1</span></span>
+<span class="line" data-line="3"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span>
+<span class="line" data-line="4"></span>
+<span class="line" data-line="5"><span style="color:#6A737D;--shiki-dark:#8B949E"># 定义一个类C1，它包含M1</span></span>
+<span class="line" data-line="6"><span style="color:#D73A49;--shiki-dark:#FF7B72">class</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> C1</span></span>
+<span class="line" data-line="7"><span style="color:#D73A49;--shiki-dark:#FF7B72">  include</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> M1</span></span>
+<span class="line" data-line="8"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span>
+<span class="line" data-line="9"></span>
+<span class="line" data-line="10"><span style="color:#6A737D;--shiki-dark:#8B949E"># 定一个类C2，它也包含M1</span></span>
+<span class="line" data-line="11"><span style="color:#D73A49;--shiki-dark:#FF7B72">class</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> C2</span></span>
+<span class="line" data-line="12"><span style="color:#D73A49;--shiki-dark:#FF7B72">  prepend</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> M1</span></span>
+<span class="line" data-line="13"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span>
+<span class="line" data-line="14"></span>
+<span class="line" data-line="15"><span style="color:#6A737D;--shiki-dark:#8B949E"># 打印C1、C2的祖先链</span></span>
+<span class="line" data-line="16"><span style="color:#005CC5;--shiki-dark:#79C0FF">p</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> C1</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">ancestors</span><span style="color:#6A737D;--shiki-dark:#8B949E"> #=> [C1, M1, Object, PP::ObjectMixin, Kernel, BasicObject]</span></span>
+<span class="line" data-line="17"><span style="color:#005CC5;--shiki-dark:#79C0FF">p</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> C2</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">ancestors</span><span style="color:#6A737D;--shiki-dark:#8B949E"> #=> [M1, C2, Object, PP::ObjectMixin, Kernel, BasicObject]</span></span></code></pre>
+<div class="note warning" data-callout="warning"><p><ins class="dot">在<span class="red">Ruby3</span>中<span class="red">prepend</span>一个<span class="red">模块</span>时，它总会加入到祖先链中，即使它在祖先链中已经出现过；而<span class="red">include</span>一个模块时，它只会加入到祖先链中一次，如果已有，就不会再加入了</ins>。</p><p><ins class="dot">在<span class="red">Ruby2</span>中<span class="red">prepend</span>和<span class="red">include</span>都只会加入模块一次</ins></p></div></div></article></main><footer class="site-footer" data-astro-cid-z4jru4n3><div class="shell" data-astro-cid-z4jru4n3><p data-astro-cid-z4jru4n3>© 2022–2026 UniStart · 心在哪里，家在哪里</p><p data-astro-cid-z4jru4n3><a href="https://github.com/unistart2" rel="me noopener noreferrer" target="_blank" data-astro-cid-z4jru4n3>GitHub</a><span aria-hidden="true" data-astro-cid-z4jru4n3> · </span><a href="/rss.xml" data-astro-cid-z4jru4n3>RSS</a></p></div></footer><script>
+      const toggle = document.querySelector('[data-theme-toggle]')
+      toggle?.addEventListener('click', () => {
+        const root = document.documentElement
+        const isDark =
+          root.dataset.theme === 'dark' ||
+          (!root.dataset.theme && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        const next = isDark ? 'light' : 'dark'
+        root.dataset.theme = next
+        try {
+          localStorage.setItem('theme', next)
+        } catch {}
+      })
+    </script></body></html>

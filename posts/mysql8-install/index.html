@@ -1,0 +1,53 @@
+<!DOCTYPE html><html lang="zh-CN" data-astro-cid-z4jru4n3><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>MySQL8 安装 - UniStart&#39;s Blog</title><meta name="description" content="个人博客 —— 学习笔记与工程实践"><link rel="canonical" href="https://unistart2.github.io/posts/mysql8-install/"><link rel="alternate" type="application/rss+xml" title="UniStart's Blog" href="/rss.xml"><link rel="icon" href="/favicon.ico"><meta name="generator" content="Astro v7.3.5"><meta name="theme-color" media="(prefers-color-scheme: light)" content="#f4f5f8"><meta name="theme-color" media="(prefers-color-scheme: dark)" content="#16181d"><script>
+      try {
+        const saved = localStorage.getItem('theme')
+        if (saved === 'light' || saved === 'dark') document.documentElement.dataset.theme = saved
+      } catch {}
+    </script><link rel="stylesheet" href="/_astro/BaseLayout.Dro-nEvJ.css"></head><body data-astro-cid-z4jru4n3><div class="backdrop" aria-hidden="true" data-astro-cid-z4jru4n3></div><header class="site-header" data-astro-cid-z4jru4n3><div class="shell" data-astro-cid-z4jru4n3><a class="site-title" href="/" data-astro-cid-z4jru4n3><img class="avatar" src="/avatar.jpg" alt="" width="36" height="36" data-astro-cid-z4jru4n3><span data-astro-cid-z4jru4n3>UniStart&#39;s Blog<span class="site-tagline" data-astro-cid-z4jru4n3>心在哪里，家在哪里</span></span></a><div class="header-actions" data-astro-cid-z4jru4n3><nav aria-label="主导航" data-astro-cid-z4jru4n3><ul class="site-nav" data-astro-cid-z4jru4n3><li data-astro-cid-z4jru4n3><a href="/" data-astro-cid-z4jru4n3>首页</a></li><li data-astro-cid-z4jru4n3><a href="/archives/" data-astro-cid-z4jru4n3>归档</a></li><li data-astro-cid-z4jru4n3><a href="/categories/" data-astro-cid-z4jru4n3>分类</a></li><li data-astro-cid-z4jru4n3><a href="/tags/" data-astro-cid-z4jru4n3>标签</a></li><li data-astro-cid-z4jru4n3><a href="/friends/" data-astro-cid-z4jru4n3>友链</a></li><li data-astro-cid-z4jru4n3><a href="/links/" data-astro-cid-z4jru4n3>链接</a></li><li data-astro-cid-z4jru4n3><a href="/tools/" data-astro-cid-z4jru4n3>工具</a></li><li data-astro-cid-z4jru4n3><a href="/about/" data-astro-cid-z4jru4n3>关于</a></li></ul></nav><button class="theme-toggle" type="button" data-theme-toggle aria-label="切换深浅色" data-astro-cid-z4jru4n3><span aria-hidden="true" data-astro-cid-z4jru4n3>◐</span></button></div></div></header><main class="layout shell" data-astro-cid-z4jru4n3><article><header class="post-header"><h1>MySQL8 安装</h1><div class="post-meta"><time datetime="2023-03-08T17:36:03.000Z">2023-03-08</time><span>分类<ul><li><a href="/categories/MySQL/">MySQL</a></li></ul></span><span>标签<ul><li><a href="/tags/MySQL/">#MySQL</a></li></ul></span></div></header><div class="prose"><div class="note info" data-callout="info"><p>OS：OpenCloudOS 8.6（兼容CentOS 8）
+安装方式：使用yum安装MySQL8</p></div>
+<h2 id="安装mysql-yum仓库">安装MySQL Yum仓库</h2>
+<p>去<a href="https://dev.mysql.com/downloads/repo/yum/">MySQL Yum Repository</a>下载需要的yum仓库</p>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line" data-line="1"><span style="color:#6A737D;--shiki-dark:#8B949E">#wget https://repo.mysql.com//your-mysql-yum-repository.rpm</span></span>
+<span class="line" data-line="2"><span style="color:#6F42C1;--shiki-dark:#FFA657">wget</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> https://repo.mysql.com//mysql80-community-release-el8-4.noarch.rpm</span></span></code></pre>
+<p>然后安装下载好的yum仓库</p>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line" data-line="1"><span style="color:#6F42C1;--shiki-dark:#FFA657">rpm</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> -ivh</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> mysql80-community-release-el8-4.noarch.rpm</span></span></code></pre>
+<h2 id="安装mysql-server">安装MySQL Server</h2>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line" data-line="1"><span style="color:#6F42C1;--shiki-dark:#FFA657">yum</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> install</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> -y</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> mysql-server</span></span></code></pre>
+<h2 id="启动mysql">启动MySQL</h2>
+<ol>
+<li>在Linux机器启动MySQL服务端，并以后台的形式运行</li>
+</ol>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line" data-line="1"><span style="color:#6A737D;--shiki-dark:#8B949E"># 启动MySQL Server服务</span></span>
+<span class="line" data-line="2"><span style="color:#6F42C1;--shiki-dark:#FFA657">systemctl</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> start</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> mysqld.service</span></span></code></pre>
+<ol start="2">
+<li>查看MySQL Server服务的状态</li>
+</ol>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line" data-line="1"><span style="color:#6A737D;--shiki-dark:#8B949E"># 查看MySQL Server服务的状态</span></span>
+<span class="line" data-line="2"><span style="color:#6F42C1;--shiki-dark:#FFA657">systemctl</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> status</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> mysqld.service</span></span></code></pre>
+<p>如果看到 Active: <span class="green">active (running)</span>说明MySQL服务端后台启动成功
+3. 查看MySQL启动时生成默认密码</p>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line" data-line="1"><span style="color:#6A737D;--shiki-dark:#8B949E"># 不同MySQL版本，可能路径有一点不同</span></span>
+<span class="line" data-line="2"><span style="color:#6F42C1;--shiki-dark:#FFA657">grep</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> "password"</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> /var/log/mysql/mysqld.log</span></span></code></pre>
+<ol start="4">
+<li>连接到MySQL服务端</li>
+</ol>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line" data-line="1"><span style="color:#6A737D;--shiki-dark:#8B949E"># mysql默认创建的用户名是root</span></span>
+<span class="line" data-line="2"><span style="color:#6A737D;--shiki-dark:#8B949E"># 如果上一步看到的默认密码是空，直接不输入密码回车就好</span></span>
+<span class="line" data-line="3"><span style="color:#6F42C1;--shiki-dark:#FFA657">mysql</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> -uroot</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> -p</span></span></code></pre>
+<ol start="5">
+<li>修改默认密码</li>
+</ol>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line" data-line="1"><span style="color:#6F42C1;--shiki-dark:#FFA657">ALTER</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> USER</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> 'root'@'localhost'</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> IDENTIFIED</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> BY</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> 'new password'</span><span style="color:#24292E;--shiki-dark:#E6EDF3">;</span></span></code></pre></div></article></main><footer class="site-footer" data-astro-cid-z4jru4n3><div class="shell" data-astro-cid-z4jru4n3><p data-astro-cid-z4jru4n3>© 2022–2026 UniStart · 心在哪里，家在哪里</p><p data-astro-cid-z4jru4n3><a href="https://github.com/unistart2" rel="me noopener noreferrer" target="_blank" data-astro-cid-z4jru4n3>GitHub</a><span aria-hidden="true" data-astro-cid-z4jru4n3> · </span><a href="/rss.xml" data-astro-cid-z4jru4n3>RSS</a></p></div></footer><script>
+      const toggle = document.querySelector('[data-theme-toggle]')
+      toggle?.addEventListener('click', () => {
+        const root = document.documentElement
+        const isDark =
+          root.dataset.theme === 'dark' ||
+          (!root.dataset.theme && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        const next = isDark ? 'light' : 'dark'
+        root.dataset.theme = next
+        try {
+          localStorage.setItem('theme', next)
+        } catch {}
+      })
+    </script></body></html>

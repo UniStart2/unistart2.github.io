@@ -1,0 +1,112 @@
+<!DOCTYPE html><html lang="zh-CN" data-astro-cid-z4jru4n3><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>通过Github Action跨仓库部署Hexo - UniStart&#39;s Blog</title><meta name="description" content="个人博客 —— 学习笔记与工程实践"><link rel="canonical" href="https://unistart2.github.io/posts/hexo-cross-repo-deploy/"><link rel="alternate" type="application/rss+xml" title="UniStart's Blog" href="/rss.xml"><link rel="icon" href="/favicon.ico"><meta name="generator" content="Astro v7.3.5"><meta name="theme-color" media="(prefers-color-scheme: light)" content="#f4f5f8"><meta name="theme-color" media="(prefers-color-scheme: dark)" content="#16181d"><script>
+      try {
+        const saved = localStorage.getItem('theme')
+        if (saved === 'light' || saved === 'dark') document.documentElement.dataset.theme = saved
+      } catch {}
+    </script><link rel="stylesheet" href="/_astro/BaseLayout.Dro-nEvJ.css"></head><body data-astro-cid-z4jru4n3><div class="backdrop" aria-hidden="true" data-astro-cid-z4jru4n3></div><header class="site-header" data-astro-cid-z4jru4n3><div class="shell" data-astro-cid-z4jru4n3><a class="site-title" href="/" data-astro-cid-z4jru4n3><img class="avatar" src="/avatar.jpg" alt="" width="36" height="36" data-astro-cid-z4jru4n3><span data-astro-cid-z4jru4n3>UniStart&#39;s Blog<span class="site-tagline" data-astro-cid-z4jru4n3>心在哪里，家在哪里</span></span></a><div class="header-actions" data-astro-cid-z4jru4n3><nav aria-label="主导航" data-astro-cid-z4jru4n3><ul class="site-nav" data-astro-cid-z4jru4n3><li data-astro-cid-z4jru4n3><a href="/" data-astro-cid-z4jru4n3>首页</a></li><li data-astro-cid-z4jru4n3><a href="/archives/" data-astro-cid-z4jru4n3>归档</a></li><li data-astro-cid-z4jru4n3><a href="/categories/" data-astro-cid-z4jru4n3>分类</a></li><li data-astro-cid-z4jru4n3><a href="/tags/" data-astro-cid-z4jru4n3>标签</a></li><li data-astro-cid-z4jru4n3><a href="/friends/" data-astro-cid-z4jru4n3>友链</a></li><li data-astro-cid-z4jru4n3><a href="/links/" data-astro-cid-z4jru4n3>链接</a></li><li data-astro-cid-z4jru4n3><a href="/tools/" data-astro-cid-z4jru4n3>工具</a></li><li data-astro-cid-z4jru4n3><a href="/about/" data-astro-cid-z4jru4n3>关于</a></li></ul></nav><button class="theme-toggle" type="button" data-theme-toggle aria-label="切换深浅色" data-astro-cid-z4jru4n3><span aria-hidden="true" data-astro-cid-z4jru4n3>◐</span></button></div></div></header><main class="layout shell" data-astro-cid-z4jru4n3><article><header class="post-header"><h1>通过Github Action跨仓库部署Hexo</h1><div class="post-meta"><time datetime="2023-04-06T16:01:22.000Z">2023-04-06</time><span>分类<ul><li><a href="/categories/Github/">Github</a></li></ul></span><span>标签<ul><li><a href="/tags/Github/">#Github</a></li><li><a href="/tags/Github-Action/">#Github Action</a></li></ul></span></div></header><div class="prose"><h2 id="前言">前言</h2>
+<blockquote>
+<p>一直想给<code>Hexo</code>博客找个在线管理面板，能够满足在线修改和发布文章的功能，这样就可以在多台不同电脑上进行写作。
+刚好在B站上看到有人用<code>Qexo</code>对<code>Hexo</code>博客进行管理，想试试好不好用。</p>
+</blockquote>
+<h2 id="前置条件">前置条件</h2>
+<ol>
+<li>完成<a href="https://github.com/Qexo/Qexo">Qexo</a>的相关安装和部署，具体安装和部署可以看<a href="https://www.oplog.cn/qexo/start/build.html">部署程序</a></li>
+<li>一个已经通过Github Pages部署好的个人博客仓库（仓库名称是：username/username.github.io的形式）</li>
+<li>将Hexo博客源码整体作为一个<code>git仓库</code>上传到<code>Github</code>，例如叫做<code>hexo-shoka</code></li>
+</ol>
+<details class="note fold info" data-callout="info"><summary>流程图</summary><p><span class="image-missing" data-original-src="https://cdn.unistart.top/blog/excalidraw/qexo-deploy-process.png">Qexo发布博客整个流程</span></p></details>
+<h2 id="使用github-action">使用Github Action</h2>
+<ol>
+<li>
+<p>创建Github Token
+在<code>Github</code>的用户页面左侧边栏找到<code>Developer settings</code>，点击后找到<code>Personal access tokens</code>，选择两种<code>Token</code>类型的其中一种进行创建，要求创建的<code>Token</code>至少对<code>相关仓库</code>具有<code>读写权限</code>。（<ins class="dot">之后的工作流中要用到，请确保权限足够</ins>）</p>
+<details class="note fold info" data-callout="info"><summary>创建示例</summary><p>例如：我选择创建<code>Personal access tokens (classic)</code>类型的<code>Token</code>，点击<code>Gernerate new token</code>按钮，选择<code>Generate new token (classic)</code>选项。进入页面后，<code>Note</code>选项框中填入待创建<code>Token</code>的名称，比如<code>HEXO_AUTO_REDEPLOY</code>。<code>Expiration</code>用于设定待创建<code>Token</code>的过期时间，比如选择<code>No Expiration</code>（一般不推荐这样）。<code>Scope</code>用于设置<code>Token</code>的相关权限，比如勾选<code>repo</code>和<code>workflow</code>。最后在底部点击<code>Gernerate token</code>按钮完成当前<code>Token</code>的创建。</p><p><span class="image-missing" data-original-src="https://cdn.unistart.top/blog/qexo/msedge_ap12qlk6se.png">创建好的HEXO_AUTO_REDEPLOY</span></p></details>
+</li>
+<li>
+<p>创建Repository secret
+在<code>Hexo博客源码仓库</code>点击<code>Settings</code>，在左侧栏找到<code>Secrets and variables</code>，选择<code>Actions</code>，进入<code>Actions secrets and variables</code>页面，点击<code>New repository secret</code>创建一个仓库secret，名称随意，例如<code>TARGET_REPO_TOKEN</code>，值为<code>刚才生成的Token</code>。同样的方式再创建一个仓库secret，名称随意，例如<code>TARGET_REPO_NAME</code>, 值以<code>username/username.github.io</code>形式填入自己的Hexo博客部署仓库的名称</p>
+</li>
+<li>
+<p>创建工作流文件
+在存储Hexo博客源码的仓库(<code>hexo-shoka</code>)中创建<code>.github/workflows/</code>文件夹路径，并在其下面创建一个<code>yaml</code>格式的文件，名称随意，例如叫<code>pages.yml</code></p>
+</li>
+<li>
+<p>编写工作流步骤
+在<code>pages.yml</code>文件中写入如下内容：</p>
+</li>
+</ol>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="yml" data-filename=".github/workflows/page.yml" data-marked="20,25,26,48,49"><code><span class="line" data-line="1"><span style="color:#22863A;--shiki-dark:#7EE787">name</span><span style="color:#24292E;--shiki-dark:#E6EDF3">: </span><span style="color:#032F62;--shiki-dark:#A5D6FF">Deploy Hexo Blog</span></span>
+<span class="line" data-line="2"></span>
+<span class="line" data-line="3"><span style="color:#6A737D;--shiki-dark:#8B949E"># Github Action触发条件</span></span>
+<span class="line" data-line="4"><span style="color:#005CC5;--shiki-dark:#79C0FF">on</span><span style="color:#24292E;--shiki-dark:#E6EDF3">: </span></span>
+<span class="line" data-line="5"><span style="color:#22863A;--shiki-dark:#7EE787">  push</span><span style="color:#24292E;--shiki-dark:#E6EDF3">: </span></span>
+<span class="line" data-line="6"><span style="color:#22863A;--shiki-dark:#7EE787">    branches</span><span style="color:#24292E;--shiki-dark:#E6EDF3">:</span></span>
+<span class="line" data-line="7"><span style="color:#24292E;--shiki-dark:#E6EDF3">      - </span><span style="color:#032F62;--shiki-dark:#A5D6FF">main</span><span style="color:#6A737D;--shiki-dark:#8B949E"> # 这里设置的是当前仓库的main分支发生push时触发</span></span>
+<span class="line" data-line="8"></span>
+<span class="line" data-line="9"><span style="color:#6A737D;--shiki-dark:#8B949E"># 作业设置</span></span>
+<span class="line" data-line="10"><span style="color:#22863A;--shiki-dark:#7EE787">jobs</span><span style="color:#24292E;--shiki-dark:#E6EDF3">:</span></span>
+<span class="line" data-line="11"><span style="color:#22863A;--shiki-dark:#7EE787">  deploy</span><span style="color:#24292E;--shiki-dark:#E6EDF3">:</span></span>
+<span class="line" data-line="12"><span style="color:#22863A;--shiki-dark:#7EE787">    runs-on</span><span style="color:#24292E;--shiki-dark:#E6EDF3">: </span><span style="color:#032F62;--shiki-dark:#A5D6FF">ubuntu-latest</span><span style="color:#6A737D;--shiki-dark:#8B949E"> # 设置运行的宿主机系统</span></span>
+<span class="line" data-line="13"><span style="color:#22863A;--shiki-dark:#7EE787">    steps</span><span style="color:#24292E;--shiki-dark:#E6EDF3">:</span></span>
+<span class="line" data-line="14"><span style="color:#6A737D;--shiki-dark:#8B949E">        # 检出当前仓库（存放Hexo博客源码的仓库）</span></span>
+<span class="line" data-line="15"><span style="color:#24292E;--shiki-dark:#E6EDF3">      - </span><span style="color:#22863A;--shiki-dark:#7EE787">name</span><span style="color:#24292E;--shiki-dark:#E6EDF3">: </span><span style="color:#032F62;--shiki-dark:#A5D6FF">Checkout source code</span></span>
+<span class="line" data-line="16"><span style="color:#22863A;--shiki-dark:#7EE787">        uses</span><span style="color:#24292E;--shiki-dark:#E6EDF3">: </span><span style="color:#032F62;--shiki-dark:#A5D6FF">actions/checkout@v2</span></span>
+<span class="line" data-line="17"><span style="color:#22863A;--shiki-dark:#7EE787">        with</span><span style="color:#24292E;--shiki-dark:#E6EDF3">:</span></span>
+<span class="line" data-line="18"><span style="color:#6A737D;--shiki-dark:#8B949E">          # 如果你的主题文件夹使用的是git submodule进行管理的话这个操作是必须的</span></span>
+<span class="line" data-line="19"><span style="color:#6A737D;--shiki-dark:#8B949E">          # 不然检出当前仓库后，themes/your_theme/文件下内容是空的</span></span>
+<span class="line fence-marked" data-line="20"><span style="color:#22863A;--shiki-dark:#7EE787">          submodules</span><span style="color:#24292E;--shiki-dark:#E6EDF3">: </span><span style="color:#032F62;--shiki-dark:#A5D6FF">'recursive'</span></span>
+<span class="line" data-line="21"></span>
+<span class="line" data-line="22"><span style="color:#6A737D;--shiki-dark:#8B949E">        # git config设置</span></span>
+<span class="line" data-line="23"><span style="color:#24292E;--shiki-dark:#E6EDF3">      - </span><span style="color:#22863A;--shiki-dark:#7EE787">name</span><span style="color:#24292E;--shiki-dark:#E6EDF3">: </span><span style="color:#032F62;--shiki-dark:#A5D6FF">Configure Git</span></span>
+<span class="line" data-line="24"><span style="color:#22863A;--shiki-dark:#7EE787">        env</span><span style="color:#24292E;--shiki-dark:#E6EDF3">:  </span><span style="color:#6A737D;--shiki-dark:#8B949E"># 如果不想通过环境变量来设置，也可以抽取成Repository secret</span></span>
+<span class="line fence-marked" data-line="25"><span style="color:#22863A;--shiki-dark:#7EE787">            USERNAME</span><span style="color:#24292E;--shiki-dark:#E6EDF3">: </span><span style="color:#032F62;--shiki-dark:#A5D6FF">unistart</span><span style="color:#6A737D;--shiki-dark:#8B949E"> # 改成自己的</span></span>
+<span class="line fence-marked" data-line="26"><span style="color:#22863A;--shiki-dark:#7EE787">            USER_EMAIL</span><span style="color:#24292E;--shiki-dark:#E6EDF3">: </span><span style="color:#032F62;--shiki-dark:#A5D6FF">2604249649@qq.com</span><span style="color:#6A737D;--shiki-dark:#8B949E"> # 改成自己的</span></span>
+<span class="line" data-line="27"><span style="color:#22863A;--shiki-dark:#7EE787">        run</span><span style="color:#24292E;--shiki-dark:#E6EDF3">: </span><span style="color:#D73A49;--shiki-dark:#FF7B72">|</span></span>
+<span class="line" data-line="28"><span style="color:#032F62;--shiki-dark:#A5D6FF">          git config --global user.email $USER_EMAIL</span></span>
+<span class="line" data-line="29"><span style="color:#032F62;--shiki-dark:#A5D6FF">          git config --global user.name $USERNAME</span></span>
+<span class="line" data-line="30"></span>
+<span class="line" data-line="31"><span style="color:#6A737D;--shiki-dark:#8B949E">        # 配置Node.js环境</span></span>
+<span class="line" data-line="32"><span style="color:#24292E;--shiki-dark:#E6EDF3">      - </span><span style="color:#22863A;--shiki-dark:#7EE787">name</span><span style="color:#24292E;--shiki-dark:#E6EDF3">: </span><span style="color:#032F62;--shiki-dark:#A5D6FF">Setup Node.js environment</span></span>
+<span class="line" data-line="33"><span style="color:#22863A;--shiki-dark:#7EE787">        uses</span><span style="color:#24292E;--shiki-dark:#E6EDF3">: </span><span style="color:#032F62;--shiki-dark:#A5D6FF">actions/setup-node@v2</span></span>
+<span class="line" data-line="34"><span style="color:#22863A;--shiki-dark:#7EE787">        with</span><span style="color:#24292E;--shiki-dark:#E6EDF3">:</span></span>
+<span class="line" data-line="35"><span style="color:#22863A;--shiki-dark:#7EE787">          node-version</span><span style="color:#24292E;--shiki-dark:#E6EDF3">: </span><span style="color:#032F62;--shiki-dark:#A5D6FF">'18.x'</span><span style="color:#6A737D;--shiki-dark:#8B949E"> # 可以根据自己的需要修改Node.js版本</span></span>
+<span class="line" data-line="36"></span>
+<span class="line" data-line="37"><span style="color:#6A737D;--shiki-dark:#8B949E">        # 安装npm依赖</span></span>
+<span class="line" data-line="38"><span style="color:#24292E;--shiki-dark:#E6EDF3">      - </span><span style="color:#22863A;--shiki-dark:#7EE787">name</span><span style="color:#24292E;--shiki-dark:#E6EDF3">: </span><span style="color:#032F62;--shiki-dark:#A5D6FF">Install dependencies</span></span>
+<span class="line" data-line="39"><span style="color:#22863A;--shiki-dark:#7EE787">        run</span><span style="color:#24292E;--shiki-dark:#E6EDF3">: </span><span style="color:#D73A49;--shiki-dark:#FF7B72">|</span></span>
+<span class="line" data-line="40"><span style="color:#032F62;--shiki-dark:#A5D6FF">          npm install hexo-cli -g</span></span>
+<span class="line" data-line="41"><span style="color:#032F62;--shiki-dark:#A5D6FF">          npm install</span></span>
+<span class="line" data-line="42"></span>
+<span class="line" data-line="43"><span style="color:#6A737D;--shiki-dark:#8B949E">        # 执行hexo命令并推送新生成的内容到指定的目标仓库（存放Hexo博客静态页面的仓库）</span></span>
+<span class="line" data-line="44"><span style="color:#6A737D;--shiki-dark:#8B949E">        # 下面使用git进行远程推送时，可以根据自己的需要修改推送分支的名称</span></span>
+<span class="line" data-line="45"><span style="color:#6A737D;--shiki-dark:#8B949E">        # 下面的操作是进行 CURRENT_REPO_NAME:main -> TARGET_REPO_NAME:main</span></span>
+<span class="line" data-line="46"><span style="color:#24292E;--shiki-dark:#E6EDF3">      - </span><span style="color:#22863A;--shiki-dark:#7EE787">name</span><span style="color:#24292E;--shiki-dark:#E6EDF3">: </span><span style="color:#032F62;--shiki-dark:#A5D6FF">Build and deploy</span></span>
+<span class="line" data-line="47"><span style="color:#22863A;--shiki-dark:#7EE787">        env</span><span style="color:#24292E;--shiki-dark:#E6EDF3">: </span><span style="color:#6A737D;--shiki-dark:#8B949E"># 注意去掉插值表达式中多余的'\'符号，因为markdown渲染的关系目前只能这样写了</span></span>
+<span class="line fence-marked" data-line="48"><span style="color:#22863A;--shiki-dark:#7EE787">          TARGET_REPO_TOKEN</span><span style="color:#24292E;--shiki-dark:#E6EDF3">: </span><span style="color:#032F62;--shiki-dark:#A5D6FF">$\{\{ secrets.TARGET_REPO_TOKEN \}\}</span></span>
+<span class="line fence-marked" data-line="49"><span style="color:#22863A;--shiki-dark:#7EE787">          TARGET_REPO_NAME</span><span style="color:#24292E;--shiki-dark:#E6EDF3">: </span><span style="color:#032F62;--shiki-dark:#A5D6FF">$\{\{ secrets.TARGET_REPO_NAME \}\}</span></span>
+<span class="line" data-line="50"><span style="color:#22863A;--shiki-dark:#7EE787">        run</span><span style="color:#24292E;--shiki-dark:#E6EDF3">: </span><span style="color:#D73A49;--shiki-dark:#FF7B72">|</span></span>
+<span class="line" data-line="51"><span style="color:#032F62;--shiki-dark:#A5D6FF">          hexo clean</span></span>
+<span class="line" data-line="52"><span style="color:#032F62;--shiki-dark:#A5D6FF">          hexo generate</span></span>
+<span class="line" data-line="53"><span style="color:#032F62;--shiki-dark:#A5D6FF">          cd public</span></span>
+<span class="line" data-line="54"><span style="color:#032F62;--shiki-dark:#A5D6FF">          git init</span></span>
+<span class="line" data-line="55"><span style="color:#032F62;--shiki-dark:#A5D6FF">          git remote add origin "https://$TARGET_REPO_TOKEN@github.com/$TARGET_REPO_NAME"</span></span>
+<span class="line" data-line="56"><span style="color:#032F62;--shiki-dark:#A5D6FF">          git checkout -b main</span></span>
+<span class="line" data-line="57"><span style="color:#032F62;--shiki-dark:#A5D6FF">          git add .</span></span>
+<span class="line" data-line="58"><span style="color:#032F62;--shiki-dark:#A5D6FF">          git commit -m "Redeploy Hexo Blog"</span></span>
+<span class="line" data-line="59"><span style="color:#032F62;--shiki-dark:#A5D6FF">          git push origin main --force </span></span></code></pre>
+<ol start="5">
+<li>在当前仓库（<code>hexo-shoka</code>）提交编写好的工作流，等待Github Action完成</li>
+</ol></div></article></main><footer class="site-footer" data-astro-cid-z4jru4n3><div class="shell" data-astro-cid-z4jru4n3><p data-astro-cid-z4jru4n3>© 2022–2026 UniStart · 心在哪里，家在哪里</p><p data-astro-cid-z4jru4n3><a href="https://github.com/unistart2" rel="me noopener noreferrer" target="_blank" data-astro-cid-z4jru4n3>GitHub</a><span aria-hidden="true" data-astro-cid-z4jru4n3> · </span><a href="/rss.xml" data-astro-cid-z4jru4n3>RSS</a></p></div></footer><script>
+      const toggle = document.querySelector('[data-theme-toggle]')
+      toggle?.addEventListener('click', () => {
+        const root = document.documentElement
+        const isDark =
+          root.dataset.theme === 'dark' ||
+          (!root.dataset.theme && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        const next = isDark ? 'light' : 'dark'
+        root.dataset.theme = next
+        try {
+          localStorage.setItem('theme', next)
+        } catch {}
+      })
+    </script></body></html>

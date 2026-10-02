@@ -1,0 +1,46 @@
+<!DOCTYPE html><html lang="zh-CN" data-astro-cid-z4jru4n3><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Rails学习-cache缓存 - UniStart&#39;s Blog</title><meta name="description" content="个人博客 —— 学习笔记与工程实践"><link rel="canonical" href="https://unistart2.github.io/posts/rails-caching/"><link rel="alternate" type="application/rss+xml" title="UniStart's Blog" href="/rss.xml"><link rel="icon" href="/favicon.ico"><meta name="generator" content="Astro v7.3.5"><meta name="theme-color" media="(prefers-color-scheme: light)" content="#f4f5f8"><meta name="theme-color" media="(prefers-color-scheme: dark)" content="#16181d"><script>
+      try {
+        const saved = localStorage.getItem('theme')
+        if (saved === 'light' || saved === 'dark') document.documentElement.dataset.theme = saved
+      } catch {}
+    </script><link rel="stylesheet" href="/_astro/BaseLayout.Dro-nEvJ.css"></head><body data-astro-cid-z4jru4n3><div class="backdrop" aria-hidden="true" data-astro-cid-z4jru4n3></div><header class="site-header" data-astro-cid-z4jru4n3><div class="shell" data-astro-cid-z4jru4n3><a class="site-title" href="/" data-astro-cid-z4jru4n3><img class="avatar" src="/avatar.jpg" alt="" width="36" height="36" data-astro-cid-z4jru4n3><span data-astro-cid-z4jru4n3>UniStart&#39;s Blog<span class="site-tagline" data-astro-cid-z4jru4n3>心在哪里，家在哪里</span></span></a><div class="header-actions" data-astro-cid-z4jru4n3><nav aria-label="主导航" data-astro-cid-z4jru4n3><ul class="site-nav" data-astro-cid-z4jru4n3><li data-astro-cid-z4jru4n3><a href="/" data-astro-cid-z4jru4n3>首页</a></li><li data-astro-cid-z4jru4n3><a href="/archives/" data-astro-cid-z4jru4n3>归档</a></li><li data-astro-cid-z4jru4n3><a href="/categories/" data-astro-cid-z4jru4n3>分类</a></li><li data-astro-cid-z4jru4n3><a href="/tags/" data-astro-cid-z4jru4n3>标签</a></li><li data-astro-cid-z4jru4n3><a href="/friends/" data-astro-cid-z4jru4n3>友链</a></li><li data-astro-cid-z4jru4n3><a href="/links/" data-astro-cid-z4jru4n3>链接</a></li><li data-astro-cid-z4jru4n3><a href="/tools/" data-astro-cid-z4jru4n3>工具</a></li><li data-astro-cid-z4jru4n3><a href="/about/" data-astro-cid-z4jru4n3>关于</a></li></ul></nav><button class="theme-toggle" type="button" data-theme-toggle aria-label="切换深浅色" data-astro-cid-z4jru4n3><span aria-hidden="true" data-astro-cid-z4jru4n3>◐</span></button></div></div></header><main class="layout shell" data-astro-cid-z4jru4n3><article><header class="post-header"><h1>Rails学习-cache缓存</h1><div class="post-meta"><time datetime="2024-03-20T10:24:51.000Z">2024-03-20</time><span>分类<ul><li><a href="/categories/Rails/">Rails</a></li></ul></span><span>标签<ul><li><a href="/tags/Ruby/">#Ruby</a></li><li><a href="/tags/Rails/">#Rails</a></li></ul></span></div></header><div class="prose"><h2 id="启用或禁用cache">启用或禁用cache</h2>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line" data-line="1"><span style="color:#6F42C1;--shiki-dark:#FFA657">bin/rails</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> dev:cache</span><span style="color:#6A737D;--shiki-dark:#8B949E"> #=> Development mode is now being cached.</span></span>
+<span class="line" data-line="2"><span style="color:#6A737D;--shiki-dark:#8B949E"># 再次执行上述命令会禁用缓存 </span></span></code></pre>
+<h2 id="在模版中使用cache方法">在模版中使用cache方法</h2>
+<ol>
+<li>将原先的代码逻辑包裹在cache方法的代码块中。</li>
+<li>当数据发生变化的时候，Rails会自动进行处理（包括缓存的存储、失效等问题）。</li>
+<li>当Rails使用缓存数据的时候，服务器的输出信息中会看到<code>Read fragment</code>字样。</li>
+<li>如果数据发生了变化，服务器输出信息中会看到多行<code>Read fragment</code>字样，同时有一行或多行<code>Write fragment</code>字样。</li>
+<li>缓存数据触发更新的条件：待渲染数据对应的数据库表中的<code>updated_at</code>字段的值发生了变化，也就是说在更新数据时，如果该记录的updated_at字段没有更新，那么之后渲染的数据仍然是之前缓存的旧数据。</li>
+</ol>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="ruby"><code><span class="line" data-line="1"><span style="color:#D73A49;--shiki-dark:#FF7B72">&#x3C;</span><span style="color:#032F62;--shiki-dark:#A5D6FF">%# 缓存@products实例变量中的数据，这是一个产品列表 %></span></span>
+<span class="line" data-line="2"><span style="color:#032F62;--shiki-dark:#A5D6FF">&#x3C;% cache @products do %></span></span>
+<span class="line" data-line="3"><span style="color:#032F62;--shiki-dark:#A5D6FF">  &#x3C;% @products.each do |product| %></span></span>
+<span class="line" data-line="4"><span style="color:#032F62;--shiki-dark:#A5D6FF">    &#x3C;%#</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> 缓存@product实例变量中的数据 </span><span style="color:#032F62;--shiki-dark:#A5D6FF">%></span></span>
+<span class="line" data-line="5"><span style="color:#032F62;--shiki-dark:#A5D6FF">    &#x3C;% cache product do %></span></span>
+<span class="line" data-line="6"><span style="color:#D73A49;--shiki-dark:#FF7B72">      &#x3C;</span><span style="color:#24292E;--shiki-dark:#E6EDF3">div </span><span style="color:#D73A49;--shiki-dark:#FF7B72">class=</span><span style="color:#032F62;--shiki-dark:#A5D6FF">"entry"</span><span style="color:#D73A49;--shiki-dark:#FF7B72">></span></span>
+<span class="line" data-line="7"><span style="color:#D73A49;--shiki-dark:#FF7B72">        &#x3C;%=</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF"> image_tag</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(product.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">image_url</span><span style="color:#24292E;--shiki-dark:#E6EDF3">) </span><span style="color:#032F62;--shiki-dark:#A5D6FF">%></span></span>
+<span class="line" data-line="8"><span style="color:#032F62;--shiki-dark:#A5D6FF">        &#x3C;h3></span><span style="color:#D73A49;--shiki-dark:#FF7B72">&#x3C;%=</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> product.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">title</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> %>&#x3C;/h3></span></span>
+<span class="line" data-line="9"><span style="color:#D73A49;--shiki-dark:#FF7B72">        &#x3C;%=</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF"> sanitize</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(product.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">description</span><span style="color:#24292E;--shiki-dark:#E6EDF3">) </span><span style="color:#032F62;--shiki-dark:#A5D6FF">%></span></span>
+<span class="line" data-line="10"><span style="color:#032F62;--shiki-dark:#A5D6FF">        &#x3C;div class="price_line"></span></span>
+<span class="line" data-line="11"><span style="color:#D73A49;--shiki-dark:#FF7B72">          &#x3C;</span><span style="color:#032F62;--shiki-dark:#A5D6FF">%# 利用Rails提供的 number_to_currency 对价格进行国际化显示 %></span></span>
+<span class="line" data-line="12"><span style="color:#032F62;--shiki-dark:#A5D6FF">          &#x3C;span class="price">&#x3C;%= number_to_currency(product.price, unit: "$") %>&#x3C;/span></span></span>
+<span class="line" data-line="13"><span style="color:#032F62;--shiki-dark:#A5D6FF">        &#x3C;/div></span></span>
+<span class="line" data-line="14"><span style="color:#032F62;--shiki-dark:#A5D6FF">      &#x3C;/div></span></span>
+<span class="line" data-line="15"><span style="color:#032F62;--shiki-dark:#A5D6FF">    &#x3C;% end %></span></span>
+<span class="line" data-line="16"><span style="color:#032F62;--shiki-dark:#A5D6FF">  &#x3C;% end %></span></span>
+<span class="line" data-line="17"><span style="color:#032F62;--shiki-dark:#A5D6FF">&#x3C;% end %></span></span></code></pre></div></article></main><footer class="site-footer" data-astro-cid-z4jru4n3><div class="shell" data-astro-cid-z4jru4n3><p data-astro-cid-z4jru4n3>© 2022–2026 UniStart · 心在哪里，家在哪里</p><p data-astro-cid-z4jru4n3><a href="https://github.com/unistart2" rel="me noopener noreferrer" target="_blank" data-astro-cid-z4jru4n3>GitHub</a><span aria-hidden="true" data-astro-cid-z4jru4n3> · </span><a href="/rss.xml" data-astro-cid-z4jru4n3>RSS</a></p></div></footer><script>
+      const toggle = document.querySelector('[data-theme-toggle]')
+      toggle?.addEventListener('click', () => {
+        const root = document.documentElement
+        const isDark =
+          root.dataset.theme === 'dark' ||
+          (!root.dataset.theme && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        const next = isDark ? 'light' : 'dark'
+        root.dataset.theme = next
+        try {
+          localStorage.setItem('theme', next)
+        } catch {}
+      })
+    </script></body></html>

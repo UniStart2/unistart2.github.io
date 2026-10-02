@@ -1,0 +1,298 @@
+<!DOCTYPE html><html lang="zh-CN" data-astro-cid-z4jru4n3><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ruby元编程（四） - UniStart&#39;s Blog</title><meta name="description" content="个人博客 —— 学习笔记与工程实践"><link rel="canonical" href="https://unistart2.github.io/posts/ruby-metaprogramming-4/"><link rel="alternate" type="application/rss+xml" title="UniStart's Blog" href="/rss.xml"><link rel="icon" href="/favicon.ico"><meta name="generator" content="Astro v7.3.5"><meta name="theme-color" media="(prefers-color-scheme: light)" content="#f4f5f8"><meta name="theme-color" media="(prefers-color-scheme: dark)" content="#16181d"><script>
+      try {
+        const saved = localStorage.getItem('theme')
+        if (saved === 'light' || saved === 'dark') document.documentElement.dataset.theme = saved
+      } catch {}
+    </script><link rel="stylesheet" href="/_astro/BaseLayout.Dro-nEvJ.css"></head><body data-astro-cid-z4jru4n3><div class="backdrop" aria-hidden="true" data-astro-cid-z4jru4n3></div><header class="site-header" data-astro-cid-z4jru4n3><div class="shell" data-astro-cid-z4jru4n3><a class="site-title" href="/" data-astro-cid-z4jru4n3><img class="avatar" src="/avatar.jpg" alt="" width="36" height="36" data-astro-cid-z4jru4n3><span data-astro-cid-z4jru4n3>UniStart&#39;s Blog<span class="site-tagline" data-astro-cid-z4jru4n3>心在哪里，家在哪里</span></span></a><div class="header-actions" data-astro-cid-z4jru4n3><nav aria-label="主导航" data-astro-cid-z4jru4n3><ul class="site-nav" data-astro-cid-z4jru4n3><li data-astro-cid-z4jru4n3><a href="/" data-astro-cid-z4jru4n3>首页</a></li><li data-astro-cid-z4jru4n3><a href="/archives/" data-astro-cid-z4jru4n3>归档</a></li><li data-astro-cid-z4jru4n3><a href="/categories/" data-astro-cid-z4jru4n3>分类</a></li><li data-astro-cid-z4jru4n3><a href="/tags/" data-astro-cid-z4jru4n3>标签</a></li><li data-astro-cid-z4jru4n3><a href="/friends/" data-astro-cid-z4jru4n3>友链</a></li><li data-astro-cid-z4jru4n3><a href="/links/" data-astro-cid-z4jru4n3>链接</a></li><li data-astro-cid-z4jru4n3><a href="/tools/" data-astro-cid-z4jru4n3>工具</a></li><li data-astro-cid-z4jru4n3><a href="/about/" data-astro-cid-z4jru4n3>关于</a></li></ul></nav><button class="theme-toggle" type="button" data-theme-toggle aria-label="切换深浅色" data-astro-cid-z4jru4n3><span aria-hidden="true" data-astro-cid-z4jru4n3>◐</span></button></div></div></header><main class="layout shell" data-astro-cid-z4jru4n3><article><header class="post-header"><h1>Ruby元编程（四）</h1><div class="post-meta"><time datetime="2023-10-14T11:34:19.000Z">2023-10-14</time><span>分类<ul><li><a href="/categories/Ruby/">Ruby</a></li></ul></span><span>标签<ul><li><a href="/tags/Ruby/">#Ruby</a></li><li><a href="/tags/Metaprogramming/">#Metaprogramming</a></li></ul></span></div></header><div class="prose"><div class="note info" data-callout="info"><p>参考书籍《Ruby元编程（第二版）》
+Ruby版本: 书上使用的是2.x，自己使用的3.1.2</p></div>
+<h2 id="类定义的本质">类定义的本质</h2>
+<div class="note primary" data-callout="primary"><p>在ruby中类不过是增强的模块，因此对类的相关内容也适用于模块</p></div>
+<h3 id="当前类">当前类</h3>
+<blockquote>
+<p>不管处在ruby程序的那个位置，总存在一个当前对象：self。同样，也总是存在一个当前类（或模块）存在。</p>
+<ul>
+<li>在程序的顶层，当前类是Object，也就是main对象所属的类（也是为什么在顶层定义的方法会成为Object的实例方法的原因）</li>
+<li>在一个方法中，当前类就是当前对象的类。（试着在一个方法中用def关键字定义另外一个方法，会发现新方法定义在self所属的类中。）</li>
+</ul>
+</blockquote>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="ruby"><code><span class="line" data-line="1"><span style="color:#D73A49;--shiki-dark:#FF7B72">class</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> C</span></span>
+<span class="line" data-line="2"><span style="color:#D73A49;--shiki-dark:#FF7B72">  def</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF"> m1</span></span>
+<span class="line" data-line="3"><span style="color:#D73A49;--shiki-dark:#FF7B72">    def</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF"> m2</span><span style="color:#24292E;--shiki-dark:#E6EDF3">; </span><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span>
+<span class="line" data-line="4"><span style="color:#D73A49;--shiki-dark:#FF7B72">  end</span></span>
+<span class="line" data-line="5"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span>
+<span class="line" data-line="6"></span>
+<span class="line" data-line="7"><span style="color:#D73A49;--shiki-dark:#FF7B72">class</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> D</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> &#x3C; </span><span style="color:#6F42C1;--shiki-dark:#79C0FF">C</span><span style="color:#24292E;--shiki-dark:#E6EDF3">; </span><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span>
+<span class="line" data-line="8"></span>
+<span class="line" data-line="9"><span style="color:#E36209;--shiki-dark:#FFA657">obj</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> =</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> D</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#D73A49;--shiki-dark:#FF7B72">new</span></span>
+<span class="line" data-line="10"><span style="color:#24292E;--shiki-dark:#E6EDF3">obj.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">m1</span></span>
+<span class="line" data-line="11"></span>
+<span class="line" data-line="12"><span style="color:#005CC5;--shiki-dark:#79C0FF">C</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">instance_methods</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#005CC5;--shiki-dark:#79C0FF">false</span><span style="color:#24292E;--shiki-dark:#E6EDF3">) </span><span style="color:#6A737D;--shiki-dark:#8B949E">#=> [:m1, :m2]</span></span></code></pre>
+<div class="note info" data-callout="info"><p>用class关键字打开类时（或用module关键字打开模块时），这个类成为当前类</p></div>
+<h3 id="class_eval方法">class_eval方法</h3>
+<blockquote>
+<p>如何在不知道类名字的情况下打开一个类？
+比如：想要设计一个以类为参数的方法，给这个类添加一个新的实例方法</p>
+</blockquote>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="ruby"><code><span class="line" data-line="1"><span style="color:#D73A49;--shiki-dark:#FF7B72">def</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF"> add_method_to</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(a_class)</span></span>
+<span class="line" data-line="2"><span style="color:#6A737D;--shiki-dark:#8B949E">  # TODO：在a_class上定义方法 m()</span></span>
+<span class="line" data-line="3"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span></code></pre>
+<blockquote>
+<p>可以使用class_eval方法：它会在一个已存在类的上下文中执行一个块</p>
+</blockquote>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="ruby"><code><span class="line" data-line="1"><span style="color:#D73A49;--shiki-dark:#FF7B72">def</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF"> add_method_to</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(a_class)</span></span>
+<span class="line" data-line="2"><span style="color:#24292E;--shiki-dark:#E6EDF3">  a_class.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">class_eval</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> do</span></span>
+<span class="line" data-line="3"><span style="color:#D73A49;--shiki-dark:#FF7B72">    def</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF"> m</span></span>
+<span class="line" data-line="4"><span style="color:#032F62;--shiki-dark:#A5D6FF">      'Hello class_eval method'</span></span>
+<span class="line" data-line="5"><span style="color:#D73A49;--shiki-dark:#FF7B72">    end</span></span>
+<span class="line" data-line="6"><span style="color:#D73A49;--shiki-dark:#FF7B72">  end</span></span>
+<span class="line" data-line="7"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span>
+<span class="line" data-line="8"></span>
+<span class="line" data-line="9"><span style="color:#6F42C1;--shiki-dark:#D2A8FF">add_method_to</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#005CC5;--shiki-dark:#79C0FF">String</span><span style="color:#24292E;--shiki-dark:#E6EDF3">)</span></span>
+<span class="line" data-line="10"><span style="color:#032F62;--shiki-dark:#A5D6FF">'abc'</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">m</span><span style="color:#6A737D;--shiki-dark:#8B949E"> #=> "Hello class_eval method"</span></span></code></pre>
+<h2 id="类实例变量">类实例变量</h2>
+<blockquote>
+<p>ruby解释器假定所有实例变量都属于当前对象self，在类定义时也是如此：</p>
+</blockquote>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="ruby"><code><span class="line" data-line="1"><span style="color:#D73A49;--shiki-dark:#FF7B72">class</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> MyClass</span></span>
+<span class="line" data-line="2"><span style="color:#24292E;--shiki-dark:#E6EDF3">  @my_var </span><span style="color:#D73A49;--shiki-dark:#FF7B72">=</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> 1</span></span>
+<span class="line" data-line="3"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span></code></pre>
+<blockquote>
+<p>在类定义的时候，self角色由类本身担任，因此实例变量@my_var属于这个类。注意：类的实例变量 和 类的对象的实例变量是不同的。
+注意区分：类变量 和 类的实例变量
+@@开头的是类变量，可以被子类或者类的实例使用；@开头的是类的实例变量，只能被类本身使用（类本身也是一个对象——Class类的实例对象）</p>
+</blockquote>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="ruby"><code><span class="line" data-line="1"><span style="color:#D73A49;--shiki-dark:#FF7B72">class</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> MyClass</span></span>
+<span class="line" data-line="2"><span style="color:#24292E;--shiki-dark:#E6EDF3">  @my_var </span><span style="color:#D73A49;--shiki-dark:#FF7B72">=</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> 1</span><span style="color:#6A737D;--shiki-dark:#8B949E"> # MyClass类的实例变量</span></span>
+<span class="line" data-line="3"></span>
+<span class="line" data-line="4"><span style="color:#D73A49;--shiki-dark:#FF7B72">  def</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF"> self.read</span></span>
+<span class="line" data-line="5"><span style="color:#24292E;--shiki-dark:#E6EDF3">    @my_var</span></span>
+<span class="line" data-line="6"><span style="color:#D73A49;--shiki-dark:#FF7B72">  end</span></span>
+<span class="line" data-line="7"></span>
+<span class="line" data-line="8"><span style="color:#D73A49;--shiki-dark:#FF7B72">  def</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF"> write</span></span>
+<span class="line" data-line="9"><span style="color:#24292E;--shiki-dark:#E6EDF3">    @my_var </span><span style="color:#D73A49;--shiki-dark:#FF7B72">=</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> 2</span></span>
+<span class="line" data-line="10"><span style="color:#D73A49;--shiki-dark:#FF7B72">  end</span></span>
+<span class="line" data-line="11"></span>
+<span class="line" data-line="12"><span style="color:#D73A49;--shiki-dark:#FF7B72">  def</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF"> read</span></span>
+<span class="line" data-line="13"><span style="color:#24292E;--shiki-dark:#E6EDF3">    @my_var</span></span>
+<span class="line" data-line="14"><span style="color:#D73A49;--shiki-dark:#FF7B72">  end</span></span>
+<span class="line" data-line="15"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span>
+<span class="line" data-line="16"></span>
+<span class="line" data-line="17"><span style="color:#E36209;--shiki-dark:#FFA657">obj</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> =</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> MyClass</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#D73A49;--shiki-dark:#FF7B72">new</span></span>
+<span class="line" data-line="18"><span style="color:#24292E;--shiki-dark:#E6EDF3">obj.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">read</span><span style="color:#6A737D;--shiki-dark:#8B949E"> #=> nil 因为obj对象上此时还没有@my_var实例变量</span></span>
+<span class="line" data-line="19"><span style="color:#24292E;--shiki-dark:#E6EDF3">obj.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">write</span></span>
+<span class="line" data-line="20"><span style="color:#24292E;--shiki-dark:#E6EDF3">obj.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">read</span><span style="color:#6A737D;--shiki-dark:#8B949E"> #=> 2</span></span>
+<span class="line" data-line="21"><span style="color:#005CC5;--shiki-dark:#79C0FF">MyClass</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">read</span><span style="color:#6A737D;--shiki-dark:#8B949E"> #=> 1 这里返回的是MyClass类本身的实例变量</span></span></code></pre>
+<h2 id="单件方法和单件类">单件方法和单件类</h2>
+<h3 id="单件方法">单件方法</h3>
+<blockquote>
+<p>ruby允许给单个对象增加一个方法：例如：</p>
+</blockquote>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="ruby"><code><span class="line" data-line="1"><span style="color:#E36209;--shiki-dark:#FFA657">str</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> =</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> 'just a regular string'</span></span>
+<span class="line" data-line="2"></span>
+<span class="line" data-line="3"><span style="color:#6A737D;--shiki-dark:#8B949E"># 只在str这个变量上添加了title?方法</span></span>
+<span class="line" data-line="4"><span style="color:#D73A49;--shiki-dark:#FF7B72">def</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF"> str.title?</span></span>
+<span class="line" data-line="5"><span style="color:#24292E;--shiki-dark:#E6EDF3">  upcase </span><span style="color:#D73A49;--shiki-dark:#FF7B72">==</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> self</span></span>
+<span class="line" data-line="6"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span>
+<span class="line" data-line="7"></span>
+<span class="line" data-line="8"><span style="color:#24292E;--shiki-dark:#E6EDF3">str.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">title?</span><span style="color:#6A737D;--shiki-dark:#8B949E"> #=> false</span></span>
+<span class="line" data-line="9"><span style="color:#24292E;--shiki-dark:#E6EDF3">str.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">methods</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">grep</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#032F62;--shiki-dark:#A5D6FF">/title?/</span><span style="color:#24292E;--shiki-dark:#E6EDF3">) </span><span style="color:#6A737D;--shiki-dark:#8B949E">#=> [:title?]</span></span>
+<span class="line" data-line="10"><span style="color:#24292E;--shiki-dark:#E6EDF3">str.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">singleton_methods</span><span style="color:#6A737D;--shiki-dark:#8B949E"> #=> [:title?]</span></span></code></pre>
+<h3 id="类方法的真相">类方法的真相</h3>
+<blockquote>
+<p>类本身也是对象（Class类的实例），而类名只是一个常量。因此，类方法的实质就是：它是类的一个单件方法。</p>
+</blockquote>
+<p>用def定义单件方法多的语法总是如下：</p>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="ruby"><code><span class="line" data-line="1"><span style="color:#D73A49;--shiki-dark:#FF7B72"> def</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF"> object.method</span></span>
+<span class="line" data-line="2"><span style="color:#6A737D;--shiki-dark:#8B949E">  # 方法主体</span></span>
+<span class="line" data-line="3"><span style="color:#D73A49;--shiki-dark:#FF7B72"> end</span></span>
+<span class="line" data-line="4"></span></code></pre>
+<blockquote>
+<p>上面定义中，object可以是对象的引用、常量类名或者self。在这三种形式下，定义的语法看起来有些不同，但实际上，底层机制是一样的。</p>
+</blockquote>
+<h3 id="单件类">单件类</h3>
+<div class="note info" data-callout="info"><p>单件类也成为元类、本征类</p></div>
+<h4 id="如何获取单件类">如何获取单件类</h4>
+<ol>
+<li>方式一：通过<code>class &#x3C;&#x3C; object</code>语法</li>
+</ol>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="ruby"><code><span class="line" data-line="1"><span style="color:#D73A49;--shiki-dark:#FF7B72">class</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> &#x3C;&#x3C; an_object</span></span>
+<span class="line" data-line="2"><span style="color:#6A737D;--shiki-dark:#8B949E">  # 自定义代码</span></span>
+<span class="line" data-line="3"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span>
+<span class="line" data-line="4"><span style="color:#6A737D;--shiki-dark:#8B949E"># 如果像获得这个单件类的引用，可以在离开作用域的时候返回self：</span></span>
+<span class="line" data-line="5"><span style="color:#E36209;--shiki-dark:#FFA657">obj</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> =</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> Object</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#D73A49;--shiki-dark:#FF7B72">new</span></span>
+<span class="line" data-line="6"></span>
+<span class="line" data-line="7"><span style="color:#E36209;--shiki-dark:#FFA657">singleton_class</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> =</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> class</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> &#x3C;&#x3C; obj</span></span>
+<span class="line" data-line="8"><span style="color:#005CC5;--shiki-dark:#79C0FF">  self</span></span>
+<span class="line" data-line="9"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span>
+<span class="line" data-line="10"></span>
+<span class="line" data-line="11"><span style="color:#24292E;--shiki-dark:#E6EDF3">singleton_class.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">class</span><span style="color:#6A737D;--shiki-dark:#8B949E"> #=> Class</span></span></code></pre>
+<ol start="2">
+<li>方式二：直接用<code>obj.singleton_class</code>方法</li>
+</ol>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="ruby"><code><span class="line" data-line="1"><span style="color:#24292E;--shiki-dark:#E6EDF3">obj.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">singleton_class</span><span style="color:#6A737D;--shiki-dark:#8B949E"> #=> #&#x3C;Class:#&#x3C;Object:0x0000000001d0d760>></span></span>
+<span class="line" data-line="2"></span>
+<span class="line" data-line="3"><span style="color:#6A737D;--shiki-dark:#8B949E">## 上述的例子说明单件类也是类（一种特殊的类）。同时每个单件类只有一个实例，而且不能被继承。最重要的是单件类是对象的单件方法存活之所（类方法实际就是一个单件方法）：</span></span>
+<span class="line" data-line="4"><span style="color:#D73A49;--shiki-dark:#FF7B72">def</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF"> obj.my_singleton_method</span><span style="color:#24292E;--shiki-dark:#E6EDF3">; </span><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span>
+<span class="line" data-line="5"><span style="color:#24292E;--shiki-dark:#E6EDF3">singleton_class.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">instance_methods</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">grep</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#032F62;--shiki-dark:#A5D6FF">/my_singleton_method/</span><span style="color:#24292E;--shiki-dark:#E6EDF3">) </span><span style="color:#6A737D;--shiki-dark:#8B949E">#=> [:my_singleton_method]</span></span></code></pre>
+<h2 id="方法查找补充">方法查找补充</h2>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="ruby"><code><span class="line" data-line="1"><span style="color:#D73A49;--shiki-dark:#FF7B72">class</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> C</span></span>
+<span class="line" data-line="2"><span style="color:#D73A49;--shiki-dark:#FF7B72">  def</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF"> a_method</span></span>
+<span class="line" data-line="3"><span style="color:#032F62;--shiki-dark:#A5D6FF">    'C#a_method'</span></span>
+<span class="line" data-line="4"><span style="color:#D73A49;--shiki-dark:#FF7B72">  end</span></span>
+<span class="line" data-line="5"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span>
+<span class="line" data-line="6"></span>
+<span class="line" data-line="7"><span style="color:#D73A49;--shiki-dark:#FF7B72">class</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> D</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> &#x3C; </span><span style="color:#6F42C1;--shiki-dark:#79C0FF">C</span><span style="color:#24292E;--shiki-dark:#E6EDF3">; </span><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span>
+<span class="line" data-line="8"></span>
+<span class="line" data-line="9"><span style="color:#E36209;--shiki-dark:#FFA657">obj</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> =</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> D</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#D73A49;--shiki-dark:#FF7B72">new</span></span>
+<span class="line" data-line="10"><span style="color:#24292E;--shiki-dark:#E6EDF3">obj.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">a_method</span><span style="color:#6A737D;--shiki-dark:#8B949E"> #=> "C#a_method"</span></span>
+<span class="line" data-line="11"></span>
+<span class="line" data-line="12"><span style="color:#6A737D;--shiki-dark:#8B949E">## 在obj上定义一个单件方法</span></span>
+<span class="line" data-line="13"><span style="color:#D73A49;--shiki-dark:#FF7B72">class</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> &#x3C;&#x3C; obj</span></span>
+<span class="line" data-line="14"><span style="color:#D73A49;--shiki-dark:#FF7B72">  def</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF"> a_singleton_method</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> </span></span>
+<span class="line" data-line="15"><span style="color:#032F62;--shiki-dark:#A5D6FF">    'obj#a_singleton_method'</span></span>
+<span class="line" data-line="16"><span style="color:#D73A49;--shiki-dark:#FF7B72">  end</span></span>
+<span class="line" data-line="17"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span>
+<span class="line" data-line="18"></span>
+<span class="line" data-line="19"><span style="color:#6A737D;--shiki-dark:#8B949E"># obj单件类的父类是D</span></span>
+<span class="line" data-line="20"><span style="color:#24292E;--shiki-dark:#E6EDF3">obj.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">singleton_class</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">superclass</span><span style="color:#6A737D;--shiki-dark:#8B949E"> #=> D</span></span></code></pre>
+<blockquote>
+<p>因此如果对象有单件类，ruby不是从对象所在的类开始查找，而是从对象的单件类开始查找方法。如果在单件类中找不到这个方法，那么它会沿着祖先链向上查找。</p>
+</blockquote>
+<h2 id="类扩展和对象扩展">类扩展和对象扩展</h2>
+<h3 id="类扩展">类扩展</h3>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="ruby"><code><span class="line" data-line="1"><span style="color:#D73A49;--shiki-dark:#FF7B72">module</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> MyModule</span></span>
+<span class="line" data-line="2"><span style="color:#D73A49;--shiki-dark:#FF7B72">  def</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF"> my_method</span><span style="color:#24292E;--shiki-dark:#E6EDF3">; </span><span style="color:#032F62;--shiki-dark:#A5D6FF">'hello'</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> end</span></span>
+<span class="line" data-line="3"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span>
+<span class="line" data-line="4"></span>
+<span class="line" data-line="5"><span style="color:#D73A49;--shiki-dark:#FF7B72">class</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> MyClass</span></span>
+<span class="line" data-line="6"><span style="color:#D73A49;--shiki-dark:#FF7B72">  class</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> &#x3C;&#x3C; </span><span style="color:#005CC5;--shiki-dark:#79C0FF">self</span></span>
+<span class="line" data-line="7"><span style="color:#D73A49;--shiki-dark:#FF7B72">    include</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> MyModule</span></span>
+<span class="line" data-line="8"><span style="color:#D73A49;--shiki-dark:#FF7B72">  end</span></span>
+<span class="line" data-line="9"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span>
+<span class="line" data-line="10"></span>
+<span class="line" data-line="11"><span style="color:#005CC5;--shiki-dark:#79C0FF">MyClass</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">my_method</span><span style="color:#6A737D;--shiki-dark:#8B949E"> #=> "hello"</span></span></code></pre>
+<h3 id="对象扩展">对象扩展</h3>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="ruby"><code><span class="line" data-line="1"><span style="color:#D73A49;--shiki-dark:#FF7B72">module</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> MyModule</span></span>
+<span class="line" data-line="2"><span style="color:#D73A49;--shiki-dark:#FF7B72">  def</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF"> my_method</span></span>
+<span class="line" data-line="3"><span style="color:#032F62;--shiki-dark:#A5D6FF">    'MyModule#my_method'</span></span>
+<span class="line" data-line="4"><span style="color:#D73A49;--shiki-dark:#FF7B72">  end</span></span>
+<span class="line" data-line="5"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span>
+<span class="line" data-line="6"></span>
+<span class="line" data-line="7"><span style="color:#E36209;--shiki-dark:#FFA657">obj</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> =</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> Object</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#D73A49;--shiki-dark:#FF7B72">new</span></span>
+<span class="line" data-line="8"><span style="color:#D73A49;--shiki-dark:#FF7B72">class</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> &#x3C;&#x3C; obj</span></span>
+<span class="line" data-line="9"><span style="color:#D73A49;--shiki-dark:#FF7B72">  include</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> MyModule</span></span>
+<span class="line" data-line="10"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span>
+<span class="line" data-line="11"></span>
+<span class="line" data-line="12"><span style="color:#24292E;--shiki-dark:#E6EDF3">obj.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">my_method</span><span style="color:#6A737D;--shiki-dark:#8B949E"> #=> "MyModule#my_method"</span></span></code></pre>
+<h3 id="扩展的简化形式">扩展的简化形式</h3>
+<p>Object#extend方法</p>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="ruby"><code><span class="line" data-line="1"><span style="color:#D73A49;--shiki-dark:#FF7B72">module</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> MyModule</span></span>
+<span class="line" data-line="2"><span style="color:#D73A49;--shiki-dark:#FF7B72">  def</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF"> my_method</span><span style="color:#24292E;--shiki-dark:#E6EDF3">; </span><span style="color:#032F62;--shiki-dark:#A5D6FF">'hello'</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> end</span></span>
+<span class="line" data-line="3"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span>
+<span class="line" data-line="4"></span>
+<span class="line" data-line="5"><span style="color:#E36209;--shiki-dark:#FFA657">obj</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> =</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> Object</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#D73A49;--shiki-dark:#FF7B72">new</span></span>
+<span class="line" data-line="6"><span style="color:#24292E;--shiki-dark:#E6EDF3">obj.</span><span style="color:#D73A49;--shiki-dark:#FF7B72">extend</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> MyModule</span></span>
+<span class="line" data-line="7"><span style="color:#24292E;--shiki-dark:#E6EDF3">obj.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">my_method</span><span style="color:#6A737D;--shiki-dark:#8B949E"> #=> "hello"</span></span>
+<span class="line" data-line="8"></span>
+<span class="line" data-line="9"><span style="color:#D73A49;--shiki-dark:#FF7B72">class</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> MyClass</span></span>
+<span class="line" data-line="10"><span style="color:#D73A49;--shiki-dark:#FF7B72">  extend</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> MyModule</span></span>
+<span class="line" data-line="11"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span>
+<span class="line" data-line="12"></span>
+<span class="line" data-line="13"><span style="color:#005CC5;--shiki-dark:#79C0FF">MyClass</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">my_method</span><span style="color:#6A737D;--shiki-dark:#8B949E"> #=> "hello"</span></span></code></pre>
+<h2 id="方法包装器">方法包装器</h2>
+<h3 id="方法别名">方法别名</h3>
+<blockquote>
+<p>ruby中可以alias_method给一个方法取一个别名，一个参数是新名称，第二个参数是原始名称</p>
+</blockquote>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="ruby"><code><span class="line" data-line="1"><span style="color:#D73A49;--shiki-dark:#FF7B72">class</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> MyClass</span></span>
+<span class="line" data-line="2"><span style="color:#D73A49;--shiki-dark:#FF7B72">  def</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF"> my_method</span></span>
+<span class="line" data-line="3"><span style="color:#032F62;--shiki-dark:#A5D6FF">    'my_method'</span></span>
+<span class="line" data-line="4"><span style="color:#D73A49;--shiki-dark:#FF7B72">  end</span></span>
+<span class="line" data-line="5"></span>
+<span class="line" data-line="6"><span style="color:#D73A49;--shiki-dark:#FF7B72">  alias</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> m my_method</span></span>
+<span class="line" data-line="7"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span>
+<span class="line" data-line="8"></span>
+<span class="line" data-line="9"><span style="color:#E36209;--shiki-dark:#FFA657">obj</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> =</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> MyClass</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#D73A49;--shiki-dark:#FF7B72">new</span></span>
+<span class="line" data-line="10"><span style="color:#24292E;--shiki-dark:#E6EDF3">obj.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">my_method</span><span style="color:#6A737D;--shiki-dark:#8B949E"> # => "my_method"</span></span>
+<span class="line" data-line="11"><span style="color:#24292E;--shiki-dark:#E6EDF3">obj.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">m</span><span style="color:#6A737D;--shiki-dark:#8B949E"> # => "my_method"</span></span></code></pre>
+<div class="note primary" data-callout="primary"><p>除此之外ruby还提供了alias关键字，可以代替Module#alias_method方法（当你需要在顶级作用域进行修改时使用，因为此时Module#alias_method不可用）</p></div>
+<blockquote>
+<p>如果给一个方法起个别名，然后又重新定义它，会怎么样？</p>
+</blockquote>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="ruby"><code><span class="line" data-line="1"><span style="color:#D73A49;--shiki-dark:#FF7B72">class</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> String</span></span>
+<span class="line" data-line="2"><span style="color:#D73A49;--shiki-dark:#FF7B72">  alias</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> real_length length</span></span>
+<span class="line" data-line="3"></span>
+<span class="line" data-line="4"><span style="color:#D73A49;--shiki-dark:#FF7B72">  def</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF"> length</span></span>
+<span class="line" data-line="5"><span style="color:#24292E;--shiki-dark:#E6EDF3">    real_length </span><span style="color:#D73A49;--shiki-dark:#FF7B72">></span><span style="color:#005CC5;--shiki-dark:#79C0FF"> 5</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> ?</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> 'long'</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> : </span><span style="color:#032F62;--shiki-dark:#A5D6FF">'short'</span></span>
+<span class="line" data-line="6"><span style="color:#D73A49;--shiki-dark:#FF7B72">  end</span></span>
+<span class="line" data-line="7"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span>
+<span class="line" data-line="8"></span>
+<span class="line" data-line="9"><span style="color:#032F62;--shiki-dark:#A5D6FF">'War and Peace'</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">length</span><span style="color:#6A737D;--shiki-dark:#8B949E"> # => "long"</span></span>
+<span class="line" data-line="10"><span style="color:#032F62;--shiki-dark:#A5D6FF">'War and Peace'</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">real_length</span><span style="color:#6A737D;--shiki-dark:#8B949E"> # => 13</span></span></code></pre>
+<blockquote>
+<p>上述的代码重新定义了String#length方法，但是别名方法引用的还是原始方法。这说明重定义方法的工作方式：重定义方法时，并不真正修改这个方法。相反，你定义了一个新方法并吧当前存在的这个方法名字跟它绑定。只要老方法还存在一个绑定的名字，仍旧可以调用它（通过老方法的别名调用，就比如上面的real_length方法)</p>
+</blockquote>
+<h3 id="环绕别名">环绕别名</h3>
+<blockquote>
+<p>通过环绕别名可以给已用方法包装新的功能</p>
+</blockquote>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="ruby"><code><span class="line" data-line="1"><span style="color:#D73A49;--shiki-dark:#FF7B72">module</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> Kernel</span></span>
+<span class="line" data-line="2"><span style="color:#D73A49;--shiki-dark:#FF7B72">  alias</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> old_puts </span><span style="color:#005CC5;--shiki-dark:#79C0FF">puts</span></span>
+<span class="line" data-line="3"></span>
+<span class="line" data-line="4"><span style="color:#D73A49;--shiki-dark:#FF7B72">  def</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF"> puts</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#D73A49;--shiki-dark:#FF7B72">*</span><span style="color:#24292E;--shiki-dark:#E6EDF3">args)</span></span>
+<span class="line" data-line="5"><span style="color:#6A737D;--shiki-dark:#8B949E">    # 自定义的一些代码</span></span>
+<span class="line" data-line="6"><span style="color:#6F42C1;--shiki-dark:#D2A8FF">    old_puts</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#D73A49;--shiki-dark:#FF7B72">*</span><span style="color:#24292E;--shiki-dark:#E6EDF3">args) </span><span style="color:#6A737D;--shiki-dark:#8B949E"># 调用原始的puts方法</span></span>
+<span class="line" data-line="7"><span style="color:#6A737D;--shiki-dark:#8B949E">    # 自定义的一些代码</span></span>
+<span class="line" data-line="8"><span style="color:#D73A49;--shiki-dark:#FF7B72">  end</span></span>
+<span class="line" data-line="9"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span></code></pre>
+<blockquote>
+<p>环境别名定义的三个步骤：</p>
+<ol>
+<li>给原始方法起一个别名</li>
+<li>重定义原始方法</li>
+<li>在新的方法中调用老的方法（通过之前定义的别名来进行）</li>
+</ol>
+</blockquote>
+<h3 id="细化包装器">细化包装器</h3>
+<blockquote>
+<p>细化除了可以把一段代码直接加入一个类中，还可以用来替换环绕别名。
+如果在细化的方法中，调用了super方法，则会调用没有细化的原始方法。</p>
+</blockquote>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="ruby"><code><span class="line" data-line="1"><span style="color:#D73A49;--shiki-dark:#FF7B72">module</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> StringRefinement</span></span>
+<span class="line" data-line="2"><span style="color:#D73A49;--shiki-dark:#FF7B72">  refine</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> String</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> do</span></span>
+<span class="line" data-line="3"><span style="color:#D73A49;--shiki-dark:#FF7B72">    def</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF"> length</span></span>
+<span class="line" data-line="4"><span style="color:#D73A49;--shiki-dark:#FF7B72">      super</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> ></span><span style="color:#005CC5;--shiki-dark:#79C0FF"> 5</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> ?</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> 'long'</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> : </span><span style="color:#032F62;--shiki-dark:#A5D6FF">'short'</span></span>
+<span class="line" data-line="5"><span style="color:#D73A49;--shiki-dark:#FF7B72">    end</span></span>
+<span class="line" data-line="6"><span style="color:#D73A49;--shiki-dark:#FF7B72">  end</span></span>
+<span class="line" data-line="7"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span>
+<span class="line" data-line="8"></span>
+<span class="line" data-line="9"><span style="color:#D73A49;--shiki-dark:#FF7B72">using</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> StringRefinement</span></span>
+<span class="line" data-line="10"><span style="color:#032F62;--shiki-dark:#A5D6FF">'War and Peace'</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">length</span><span style="color:#6A737D;--shiki-dark:#8B949E"> #=> "long"</span></span></code></pre>
+<p>上述代码技术成为细化封装器，其作用范围和之前的细化一样，作用范围只到文件末尾，在ruby2.1中是在模块的定义范围之内（这样要比环绕别名方法更加安全，因为环绕别名是全局性的）</p>
+<h3 id="moduleprepend方法">Module#prepend方法</h3>
+<p>Module#prepend方法和include类似，但是它会把包含的模块插入到祖先链中该类下方。这意味着被prepend方法包含的模块可以覆写该类的同名方法，同时可以通过super调用该类中的原始方法：</p>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="ruby"><code><span class="line" data-line="1"><span style="color:#D73A49;--shiki-dark:#FF7B72">module</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> ExplicitString</span></span>
+<span class="line" data-line="2"><span style="color:#D73A49;--shiki-dark:#FF7B72">  def</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF"> length</span></span>
+<span class="line" data-line="3"><span style="color:#D73A49;--shiki-dark:#FF7B72">    super</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> ></span><span style="color:#005CC5;--shiki-dark:#79C0FF"> 5</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> ?</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> "long"</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> : </span><span style="color:#032F62;--shiki-dark:#A5D6FF">"short"</span></span>
+<span class="line" data-line="4"><span style="color:#D73A49;--shiki-dark:#FF7B72">  end</span></span>
+<span class="line" data-line="5"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span>
+<span class="line" data-line="6"></span>
+<span class="line" data-line="7"><span style="color:#005CC5;--shiki-dark:#79C0FF">String</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">class_eval</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> do</span></span>
+<span class="line" data-line="8"><span style="color:#D73A49;--shiki-dark:#FF7B72">  prepend</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> ExplicitString</span></span>
+<span class="line" data-line="9"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span>
+<span class="line" data-line="10"></span>
+<span class="line" data-line="11"><span style="color:#032F62;--shiki-dark:#A5D6FF">"War and Peace"</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">length</span><span style="color:#6A737D;--shiki-dark:#8B949E"> #=> "long"</span></span></code></pre>
+<p>这种技术也被称为下包含包装器。和细化包装器相比，它不是一种局部化方法，但是一般认为其比细化包装器和环绕别名都更清晰。</p></div></article></main><footer class="site-footer" data-astro-cid-z4jru4n3><div class="shell" data-astro-cid-z4jru4n3><p data-astro-cid-z4jru4n3>© 2022–2026 UniStart · 心在哪里，家在哪里</p><p data-astro-cid-z4jru4n3><a href="https://github.com/unistart2" rel="me noopener noreferrer" target="_blank" data-astro-cid-z4jru4n3>GitHub</a><span aria-hidden="true" data-astro-cid-z4jru4n3> · </span><a href="/rss.xml" data-astro-cid-z4jru4n3>RSS</a></p></div></footer><script>
+      const toggle = document.querySelector('[data-theme-toggle]')
+      toggle?.addEventListener('click', () => {
+        const root = document.documentElement
+        const isDark =
+          root.dataset.theme === 'dark' ||
+          (!root.dataset.theme && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        const next = isDark ? 'light' : 'dark'
+        root.dataset.theme = next
+        try {
+          localStorage.setItem('theme', next)
+        } catch {}
+      })
+    </script></body></html>

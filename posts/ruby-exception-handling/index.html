@@ -1,0 +1,129 @@
+<!DOCTYPE html><html lang="zh-CN" data-astro-cid-z4jru4n3><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ruby学习-异常处理 - UniStart&#39;s Blog</title><meta name="description" content="个人博客 —— 学习笔记与工程实践"><link rel="canonical" href="https://unistart2.github.io/posts/ruby-exception-handling/"><link rel="alternate" type="application/rss+xml" title="UniStart's Blog" href="/rss.xml"><link rel="icon" href="/favicon.ico"><meta name="generator" content="Astro v7.3.5"><meta name="theme-color" media="(prefers-color-scheme: light)" content="#f4f5f8"><meta name="theme-color" media="(prefers-color-scheme: dark)" content="#16181d"><script>
+      try {
+        const saved = localStorage.getItem('theme')
+        if (saved === 'light' || saved === 'dark') document.documentElement.dataset.theme = saved
+      } catch {}
+    </script><link rel="stylesheet" href="/_astro/BaseLayout.Dro-nEvJ.css"></head><body data-astro-cid-z4jru4n3><div class="backdrop" aria-hidden="true" data-astro-cid-z4jru4n3></div><header class="site-header" data-astro-cid-z4jru4n3><div class="shell" data-astro-cid-z4jru4n3><a class="site-title" href="/" data-astro-cid-z4jru4n3><img class="avatar" src="/avatar.jpg" alt="" width="36" height="36" data-astro-cid-z4jru4n3><span data-astro-cid-z4jru4n3>UniStart&#39;s Blog<span class="site-tagline" data-astro-cid-z4jru4n3>心在哪里，家在哪里</span></span></a><div class="header-actions" data-astro-cid-z4jru4n3><nav aria-label="主导航" data-astro-cid-z4jru4n3><ul class="site-nav" data-astro-cid-z4jru4n3><li data-astro-cid-z4jru4n3><a href="/" data-astro-cid-z4jru4n3>首页</a></li><li data-astro-cid-z4jru4n3><a href="/archives/" data-astro-cid-z4jru4n3>归档</a></li><li data-astro-cid-z4jru4n3><a href="/categories/" data-astro-cid-z4jru4n3>分类</a></li><li data-astro-cid-z4jru4n3><a href="/tags/" data-astro-cid-z4jru4n3>标签</a></li><li data-astro-cid-z4jru4n3><a href="/friends/" data-astro-cid-z4jru4n3>友链</a></li><li data-astro-cid-z4jru4n3><a href="/links/" data-astro-cid-z4jru4n3>链接</a></li><li data-astro-cid-z4jru4n3><a href="/tools/" data-astro-cid-z4jru4n3>工具</a></li><li data-astro-cid-z4jru4n3><a href="/about/" data-astro-cid-z4jru4n3>关于</a></li></ul></nav><button class="theme-toggle" type="button" data-theme-toggle aria-label="切换深浅色" data-astro-cid-z4jru4n3><span aria-hidden="true" data-astro-cid-z4jru4n3>◐</span></button></div></div></header><main class="layout shell" data-astro-cid-z4jru4n3><article><header class="post-header"><h1>Ruby学习-异常处理</h1><div class="post-meta"><time datetime="2022-11-22T19:03:31.000Z">2022-11-22</time><span>分类<ul><li><a href="/categories/Ruby/">Ruby</a></li></ul></span><span>标签<ul><li><a href="/tags/Ruby/">#Ruby</a></li></ul></span></div></header><div class="prose"><h2 id="异常处理语句">异常处理语句</h2>
+<div class="note primary" data-callout="primary"><p>Ruby使用begin～rescue～end语句描述异常处理，类似于Java中的try～catch块</p></div>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="ruby" data-filename="异常处理"><code><span class="line" data-line="1"><span style="color:#D73A49;--shiki-dark:#FF7B72">begin</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> </span></span>
+<span class="line" data-line="2"><span style="color:#24292E;--shiki-dark:#E6EDF3">  可能发生发生异常异常的代码</span></span>
+<span class="line" data-line="3"><span style="color:#D73A49;--shiki-dark:#FF7B72">rescue</span></span>
+<span class="line" data-line="4"><span style="color:#24292E;--shiki-dark:#E6EDF3">  发生异常时的处理</span></span>
+<span class="line" data-line="5"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span></code></pre>
+<div class="note info" data-callout="info"><p>rescue后面可以指定一个变量名，用于获取异常对象</p></div>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="ruby" data-filename="获取异常对象"><code><span class="line" data-line="1"><span style="color:#D73A49;--shiki-dark:#FF7B72">begin</span></span>
+<span class="line" data-line="2"><span style="color:#24292E;--shiki-dark:#E6EDF3">  ....</span></span>
+<span class="line" data-line="3"><span style="color:#D73A49;--shiki-dark:#FF7B72">rescue</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> => 引用异常对象的变量</span></span>
+<span class="line" data-line="4"><span style="color:#24292E;--shiki-dark:#E6EDF3">  ....</span></span>
+<span class="line" data-line="5"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span></code></pre>
+<div class="note warning" data-callout="warning"><p>即使在rescue后不指定变量名，Ruby也会把异常对象赋值给变量$!</p></div>
+<p><span class="label primary">异常发生时被自动赋值的变量</span></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th align="center">变量</th><th align="center">作用</th></tr></thead><tbody><tr><td align="center">$!</td><td align="center">最后发生的异常（异常对象）</td></tr><tr><td align="center">$@</td><td align="center">最后发生的异常的位置信息</td></tr><tr><td align="center"><span class="label info">异常对象的方法</span></td><td align="center"></td></tr><tr><td align="center">方法名</td><td align="center">作用</td></tr><tr><td align="center">:-:</td><td align="center">:-:</td></tr><tr><td align="center">class</td><td align="center">获取异常的种类</td></tr><tr><td align="center">message</td><td align="center">获取异常信息</td></tr><tr><td align="center">backtrace</td><td align="center">获取异常发生的位置信息（$@和$!.backtrace等价）</td></tr></tbody></table>
+<h2 id="后处理">后处理</h2>
+<blockquote>
+<p>不管是否发生异常都希望进行的处理，可以放在ensure关键字之后，
+类似Java中try～catch～finally中的finally，一般由于资源的释放等</p>
+</blockquote>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="ruby" data-filename="ensure关键字使用"><code><span class="line" data-line="1"><span style="color:#D73A49;--shiki-dark:#FF7B72">begin</span></span>
+<span class="line" data-line="2"><span style="color:#24292E;--shiki-dark:#E6EDF3">  可能发生异常的代码块</span></span>
+<span class="line" data-line="3"><span style="color:#D73A49;--shiki-dark:#FF7B72">rescue</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> => ex</span></span>
+<span class="line" data-line="4"><span style="color:#24292E;--shiki-dark:#E6EDF3">  发生异常后的处理</span></span>
+<span class="line" data-line="5"><span style="color:#D73A49;--shiki-dark:#FF7B72">ensure</span></span>
+<span class="line" data-line="6"><span style="color:#24292E;--shiki-dark:#E6EDF3">  不管是否发生异常都会执行的处理</span></span>
+<span class="line" data-line="7"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span></code></pre>
+<h2 id="重试">重试</h2>
+<blockquote>
+<p><ins class="dot">Ruby中支持异常重试</ins>，这和Java、C、Rust中的异常处理方式是不同的
+可以在rescue后的代码块中使用retry语句，<ins class="dot">让Ruby从头开始执行begin块</ins></p>
+</blockquote>
+<div class="note danger" data-callout="danger"><p><span class="red">在rescue中使用retry进行异常重试时要注意避免陷入死循环的情况</span></p></div>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="ruby" data-filename="异常重试"><code><span class="line" data-line="1"><span style="color:#D73A49;--shiki-dark:#FF7B72">begin</span></span>
+<span class="line" data-line="2"><span style="color:#24292E;--shiki-dark:#E6EDF3">    可能发生异常的代码块</span></span>
+<span class="line" data-line="3"><span style="color:#D73A49;--shiki-dark:#FF7B72">rescue</span></span>
+<span class="line" data-line="4"><span style="color:#D73A49;--shiki-dark:#FF7B72">    retry</span><span style="color:#6A737D;--shiki-dark:#8B949E"> # 重头执行begin代码块</span></span>
+<span class="line" data-line="5"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span></code></pre>
+<h2 id="指定需要捕捉的异常">指定需要捕捉的异常</h2>
+<blockquote>
+<p>Ruby中所有异常都是Exception类的子类</p>
+</blockquote>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="ruby"><code><span class="line" data-line="1"><span style="color:#D73A49;--shiki-dark:#FF7B72">begin</span></span>
+<span class="line" data-line="2"><span style="color:#24292E;--shiki-dark:#E6EDF3">  ...</span></span>
+<span class="line" data-line="3"><span style="color:#D73A49;--shiki-dark:#FF7B72">rescue</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> exception1, exception2 => ex1</span></span>
+<span class="line" data-line="4"><span style="color:#24292E;--shiki-dark:#E6EDF3">  对exception1或exception2的处理</span></span>
+<span class="line" data-line="5"><span style="color:#D73A49;--shiki-dark:#FF7B72">rescue</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> exception3 => ex2</span></span>
+<span class="line" data-line="6"><span style="color:#24292E;--shiki-dark:#E6EDF3">  对exception3的处理</span></span>
+<span class="line" data-line="7"><span style="color:#D73A49;--shiki-dark:#FF7B72">rescue</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> </span></span>
+<span class="line" data-line="8"><span style="color:#24292E;--shiki-dark:#E6EDF3">  对上述异常以外的异常进行的处理</span></span>
+<span class="line" data-line="9"><span style="color:#D73A49;--shiki-dark:#FF7B72">ensure</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> </span></span>
+<span class="line" data-line="10"><span style="color:#24292E;--shiki-dark:#E6EDF3">  ...</span></span>
+<span class="line" data-line="11"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span></code></pre>
+<h2 id="手动抛出异常">手动抛出异常</h2>
+<blockquote>
+<p>Ruby中使用raise进行手动抛出异常，类似于Java中的throw</p>
+</blockquote>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="ruby" data-filename="手动抛出异常"><code><span class="line" data-line="1"><span style="color:#6A737D;--shiki-dark:#8B949E"># raise方法的调用方式</span></span>
+<span class="line" data-line="2"><span style="color:#6A737D;--shiki-dark:#8B949E"># 1、抛出RuntimError异常，并把message设置给异常对象</span></span>
+<span class="line" data-line="3"><span style="color:#D73A49;--shiki-dark:#FF7B72">raise</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> message</span></span>
+<span class="line" data-line="4"></span>
+<span class="line" data-line="5"><span style="color:#6A737D;--shiki-dark:#8B949E"># 2、抛出指定的异常</span></span>
+<span class="line" data-line="6"><span style="color:#D73A49;--shiki-dark:#FF7B72">raise</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> 异常类</span></span>
+<span class="line" data-line="7"></span>
+<span class="line" data-line="8"><span style="color:#6A737D;--shiki-dark:#8B949E"># 3、抛出指定的异常，并将message设置给异常对象</span></span>
+<span class="line" data-line="9"><span style="color:#D73A49;--shiki-dark:#FF7B72">raise</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> 异常类 message</span></span>
+<span class="line" data-line="10"></span>
+<span class="line" data-line="11"><span style="color:#6A737D;--shiki-dark:#8B949E"># 4、在rescue外抛出RuntimeError，在rescue中调用时，会再次抛出最后一次发生的异常</span></span>
+<span class="line" data-line="12"><span style="color:#D73A49;--shiki-dark:#FF7B72">raise</span></span></code></pre></div></article></main><footer class="site-footer" data-astro-cid-z4jru4n3><div class="shell" data-astro-cid-z4jru4n3><p data-astro-cid-z4jru4n3>© 2022–2026 UniStart · 心在哪里，家在哪里</p><p data-astro-cid-z4jru4n3><a href="https://github.com/unistart2" rel="me noopener noreferrer" target="_blank" data-astro-cid-z4jru4n3>GitHub</a><span aria-hidden="true" data-astro-cid-z4jru4n3> · </span><a href="/rss.xml" data-astro-cid-z4jru4n3>RSS</a></p></div></footer><script>
+      const toggle = document.querySelector('[data-theme-toggle]')
+      toggle?.addEventListener('click', () => {
+        const root = document.documentElement
+        const isDark =
+          root.dataset.theme === 'dark' ||
+          (!root.dataset.theme && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        const next = isDark ? 'light' : 'dark'
+        root.dataset.theme = next
+        try {
+          localStorage.setItem('theme', next)
+        } catch {}
+      })
+    </script></body></html>

@@ -1,0 +1,202 @@
+<!DOCTYPE html><html lang="zh-CN" data-astro-cid-z4jru4n3><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ruby元编程（三） - UniStart&#39;s Blog</title><meta name="description" content="个人博客 —— 学习笔记与工程实践"><link rel="canonical" href="https://unistart2.github.io/posts/ruby-metaprogramming-3/"><link rel="alternate" type="application/rss+xml" title="UniStart's Blog" href="/rss.xml"><link rel="icon" href="/favicon.ico"><meta name="generator" content="Astro v7.3.5"><meta name="theme-color" media="(prefers-color-scheme: light)" content="#f4f5f8"><meta name="theme-color" media="(prefers-color-scheme: dark)" content="#16181d"><script>
+      try {
+        const saved = localStorage.getItem('theme')
+        if (saved === 'light' || saved === 'dark') document.documentElement.dataset.theme = saved
+      } catch {}
+    </script><link rel="stylesheet" href="/_astro/BaseLayout.Dro-nEvJ.css"></head><body data-astro-cid-z4jru4n3><div class="backdrop" aria-hidden="true" data-astro-cid-z4jru4n3></div><header class="site-header" data-astro-cid-z4jru4n3><div class="shell" data-astro-cid-z4jru4n3><a class="site-title" href="/" data-astro-cid-z4jru4n3><img class="avatar" src="/avatar.jpg" alt="" width="36" height="36" data-astro-cid-z4jru4n3><span data-astro-cid-z4jru4n3>UniStart&#39;s Blog<span class="site-tagline" data-astro-cid-z4jru4n3>心在哪里，家在哪里</span></span></a><div class="header-actions" data-astro-cid-z4jru4n3><nav aria-label="主导航" data-astro-cid-z4jru4n3><ul class="site-nav" data-astro-cid-z4jru4n3><li data-astro-cid-z4jru4n3><a href="/" data-astro-cid-z4jru4n3>首页</a></li><li data-astro-cid-z4jru4n3><a href="/archives/" data-astro-cid-z4jru4n3>归档</a></li><li data-astro-cid-z4jru4n3><a href="/categories/" data-astro-cid-z4jru4n3>分类</a></li><li data-astro-cid-z4jru4n3><a href="/tags/" data-astro-cid-z4jru4n3>标签</a></li><li data-astro-cid-z4jru4n3><a href="/friends/" data-astro-cid-z4jru4n3>友链</a></li><li data-astro-cid-z4jru4n3><a href="/links/" data-astro-cid-z4jru4n3>链接</a></li><li data-astro-cid-z4jru4n3><a href="/tools/" data-astro-cid-z4jru4n3>工具</a></li><li data-astro-cid-z4jru4n3><a href="/about/" data-astro-cid-z4jru4n3>关于</a></li></ul></nav><button class="theme-toggle" type="button" data-theme-toggle aria-label="切换深浅色" data-astro-cid-z4jru4n3><span aria-hidden="true" data-astro-cid-z4jru4n3>◐</span></button></div></div></header><main class="layout shell" data-astro-cid-z4jru4n3><article><header class="post-header"><h1>Ruby元编程（三）</h1><div class="post-meta"><time datetime="2023-02-26T09:49:20.000Z">2023-02-26</time><span>分类<ul><li><a href="/categories/Ruby/">Ruby</a></li></ul></span><span>标签<ul><li><a href="/tags/Ruby/">#Ruby</a></li><li><a href="/tags/Metaprogramming/">#Metaprogramming</a></li></ul></span></div></header><div class="prose"><div class="note info" data-callout="info"><p>参考书籍《Ruby元编程（第二版）》
+Ruby版本: 书上使用的是2.x，自己使用的3.1.2</p></div>
+<h2 id="动态调用方法">动态调用方法</h2>
+<blockquote>
+<p>使用[Object#send]可以进行动态调用方法。<span class="red">send方法</span>的第一个参数是要调用的方法名字（可以是字符串或符号），剩下的参数和代码块会直接传递给调用的方法，这样可以在代码运行的最后一刻决定调用那个方法，这个技巧被称为<span class="red">动态派发</span>（Dynamic Dispatch）</p>
+</blockquote>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="ruby" data-filename="示例代码" data-marked="9,12"><code><span class="line" data-line="1"><span style="color:#D73A49;--shiki-dark:#FF7B72">class</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> MyClass</span></span>
+<span class="line" data-line="2"><span style="color:#D73A49;--shiki-dark:#FF7B72">  def</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF"> my_method</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(my_arg)</span></span>
+<span class="line" data-line="3"><span style="color:#24292E;--shiki-dark:#E6EDF3">    my_arg </span><span style="color:#D73A49;--shiki-dark:#FF7B72">*</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> 2</span></span>
+<span class="line" data-line="4"><span style="color:#D73A49;--shiki-dark:#FF7B72">  end</span></span>
+<span class="line" data-line="5"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span>
+<span class="line" data-line="6"></span>
+<span class="line" data-line="7"><span style="color:#E36209;--shiki-dark:#FFA657">obj</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> =</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> MyClass</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#D73A49;--shiki-dark:#FF7B72">new</span></span>
+<span class="line" data-line="8"><span style="color:#6A737D;--shiki-dark:#8B949E"># 常规调用方式</span></span>
+<span class="line fence-marked" data-line="9"><span style="color:#005CC5;--shiki-dark:#79C0FF">p</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> obj.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">my_method</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#005CC5;--shiki-dark:#79C0FF">3</span><span style="color:#24292E;--shiki-dark:#E6EDF3">) </span><span style="color:#6A737D;--shiki-dark:#8B949E">#=> 6</span></span>
+<span class="line" data-line="10"></span>
+<span class="line" data-line="11"><span style="color:#6A737D;--shiki-dark:#8B949E"># 使用send方法进行动态调用</span></span>
+<span class="line fence-marked" data-line="12"><span style="color:#005CC5;--shiki-dark:#79C0FF">p</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> obj.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">send</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#005CC5;--shiki-dark:#79C0FF">:my_method</span><span style="color:#24292E;--shiki-dark:#E6EDF3">, </span><span style="color:#005CC5;--shiki-dark:#79C0FF">3</span><span style="color:#24292E;--shiki-dark:#E6EDF3">) </span><span style="color:#6A737D;--shiki-dark:#8B949E">#=> 6</span></span></code></pre>
+<h2 id="动态定义方法">动态定义方法</h2>
+<blockquote>
+<p>使用<span class="red">Module#define_method</span>方法可以随时定义一个方法，<ins class="dot">只需要提供一个方法名和充当方法主体的块</ins>。</p>
+</blockquote>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="ruby" data-filename="示例代码" data-marked="3,4,5,9"><code><span class="line" data-line="1"><span style="color:#D73A49;--shiki-dark:#FF7B72">class</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> MyClass2</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> </span></span>
+<span class="line" data-line="2"><span style="color:#6A737D;--shiki-dark:#8B949E">  # 动态定义了 my_method方法</span></span>
+<span class="line fence-marked" data-line="3"><span style="color:#24292E;--shiki-dark:#E6EDF3">  define_method </span><span style="color:#005CC5;--shiki-dark:#79C0FF">:my_method</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> do</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> |my_arg|</span></span>
+<span class="line fence-marked" data-line="4"><span style="color:#24292E;--shiki-dark:#E6EDF3">    my_arg </span><span style="color:#D73A49;--shiki-dark:#FF7B72">*</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> 3</span></span>
+<span class="line fence-marked" data-line="5"><span style="color:#D73A49;--shiki-dark:#FF7B72">  end</span></span>
+<span class="line" data-line="6"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span>
+<span class="line" data-line="7"></span>
+<span class="line" data-line="8"><span style="color:#E36209;--shiki-dark:#FFA657">obj2</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> =</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> MyClass2</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#D73A49;--shiki-dark:#FF7B72">new</span></span>
+<span class="line fence-marked" data-line="9"><span style="color:#005CC5;--shiki-dark:#79C0FF">p</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> obj2.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">my_method</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#005CC5;--shiki-dark:#79C0FF">2</span><span style="color:#24292E;--shiki-dark:#E6EDF3">) </span><span style="color:#6A737D;--shiki-dark:#8B949E">#=> 6</span></span></code></pre>
+<h2 id="幽灵方法">幽灵方法</h2>
+<blockquote>
+<p><ins class="wavy">在Ruby中，编译器并不检查方法的调用行为</ins>，这意味着可以带调用一个并不存在的方法。
+当在对象上调用方法时，如果该方法在<span class="red">祖先链</span>上找不到，那么就会调用<span class="red">method_missing</span>方法，它是<span class="red">BasicObject</span>的一个私有实例方法，<ins class="dot">默认行为是抛出<span class="red">NoMethodError</span>错误</ins>。
+我们可以通过重写<span class="red">method_missing</span>方法，<ins class="dot">来拦截那些实际不存在的方法</ins>，达到实现<span class="red">幽灵方法</span>（Ghost Method）的效果。</p>
+</blockquote>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="ruby" data-filename="示例代码" data-marked="6,11,12,13,14,18,19,20"><code><span class="line" data-line="1"><span style="color:#D73A49;--shiki-dark:#FF7B72">class</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> Lawyer</span></span>
+<span class="line" data-line="2"><span style="color:#D73A49;--shiki-dark:#FF7B72">  def</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF"> something</span><span style="color:#24292E;--shiki-dark:#E6EDF3">; </span><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span>
+<span class="line" data-line="3"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span>
+<span class="line" data-line="4"></span>
+<span class="line" data-line="5"><span style="color:#E36209;--shiki-dark:#FFA657">nick</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> =</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> Lawyer</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#D73A49;--shiki-dark:#FF7B72">new</span></span>
+<span class="line fence-marked" data-line="6"><span style="color:#24292E;--shiki-dark:#E6EDF3">nick.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">talk_simple</span><span style="color:#6A737D;--shiki-dark:#8B949E"> # 运行时抛出异常: NoMethodError</span></span>
+<span class="line" data-line="7"></span>
+<span class="line" data-line="8"></span>
+<span class="line" data-line="9"><span style="color:#6A737D;--shiki-dark:#8B949E"># 重写 method_missing 方法</span></span>
+<span class="line" data-line="10"><span style="color:#D73A49;--shiki-dark:#FF7B72">class</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> Lawyer2</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> </span></span>
+<span class="line fence-marked" data-line="11"><span style="color:#D73A49;--shiki-dark:#FF7B72">  def</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF"> method_missing</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(method, </span><span style="color:#D73A49;--shiki-dark:#FF7B72">*</span><span style="color:#24292E;--shiki-dark:#E6EDF3">args)</span></span>
+<span class="line fence-marked" data-line="12"><span style="color:#005CC5;--shiki-dark:#79C0FF">    puts</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> "Your call: </span><span style="color:#032F62;--shiki-dark:#FF7B72">#{</span><span style="color:#032F62;--shiki-dark:#A5D6FF">method</span><span style="color:#032F62;--shiki-dark:#FF7B72">}</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> (</span><span style="color:#032F62;--shiki-dark:#FF7B72">#{</span><span style="color:#032F62;--shiki-dark:#A5D6FF">args.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">join</span><span style="color:#032F62;--shiki-dark:#A5D6FF">(</span><span style="color:#032F62;--shiki-dark:#A5D6FF">', '</span><span style="color:#032F62;--shiki-dark:#A5D6FF">)</span><span style="color:#032F62;--shiki-dark:#FF7B72">}</span><span style="color:#032F62;--shiki-dark:#A5D6FF">)"</span></span>
+<span class="line fence-marked" data-line="13"><span style="color:#005CC5;--shiki-dark:#79C0FF">    puts</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> "(You also passed it a block)"</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> if</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> block_given?</span></span>
+<span class="line fence-marked" data-line="14"><span style="color:#D73A49;--shiki-dark:#FF7B72">  end</span></span>
+<span class="line" data-line="15"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span>
+<span class="line" data-line="16"></span>
+<span class="line" data-line="17"><span style="color:#E36209;--shiki-dark:#FFA657">bob</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> =</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> Lawyer2</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#D73A49;--shiki-dark:#FF7B72">new</span></span>
+<span class="line fence-marked" data-line="18"><span style="color:#24292E;--shiki-dark:#E6EDF3">bob.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">talk_simple</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#032F62;--shiki-dark:#A5D6FF">'a'</span><span style="color:#24292E;--shiki-dark:#E6EDF3">, </span><span style="color:#032F62;--shiki-dark:#A5D6FF">'b'</span><span style="color:#24292E;--shiki-dark:#E6EDF3">) </span><span style="color:#D73A49;--shiki-dark:#FF7B72">do</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> </span></span>
+<span class="line fence-marked" data-line="19"><span style="color:#6A737D;--shiki-dark:#8B949E">  # a block</span></span>
+<span class="line fence-marked" data-line="20"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span>
+<span class="line" data-line="21"><span style="color:#6A737D;--shiki-dark:#8B949E">#=> 输出结果如下：</span></span>
+<span class="line" data-line="22"><span style="color:#6A737D;--shiki-dark:#8B949E">#=> "Your call: talk_simple (a, b)"</span></span>
+<span class="line" data-line="23"><span style="color:#6A737D;--shiki-dark:#8B949E">#=> "(You also passed it a block)"</span></span></code></pre>
+<h2 id="respond_to方法">respond_to?方法</h2>
+<blockquote>
+<p>使用<span class="red">respond_to?</span>方法可以询问一个对象是否有对应的方法。
+当询问对象是否存在一个<span class="red">幽灵方法</span>时，会再次调用<span class="red">respond_to_missing?</span>方法，将其结果作为返回值返回，这个方法是一个<span class="red">钩子方法</span>（Hook Method），默认实现是返回false，当使用[method_missing]处理幽灵方法时，<ins class="dot">一般就需要对其进行重写</ins>。</p>
+</blockquote>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="ruby" data-filename="示例代码" data-marked="15,17,33,34,35,40,42"><code><span class="line" data-line="1"><span style="color:#D73A49;--shiki-dark:#FF7B72">class</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> Demo</span></span>
+<span class="line" data-line="2"><span style="color:#D73A49;--shiki-dark:#FF7B72">  def</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF"> method_missing</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(name, </span><span style="color:#D73A49;--shiki-dark:#FF7B72">*</span><span style="color:#24292E;--shiki-dark:#E6EDF3">args)</span></span>
+<span class="line" data-line="3"><span style="color:#6A737D;--shiki-dark:#8B949E">    # 只处理名称为 hello 的幽灵方法</span></span>
+<span class="line" data-line="4"><span style="color:#D73A49;--shiki-dark:#FF7B72">    super</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> if</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> name.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">to_s</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> !=</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> 'hello'</span></span>
+<span class="line" data-line="5"><span style="color:#005CC5;--shiki-dark:#79C0FF">    p</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> "method name: </span><span style="color:#032F62;--shiki-dark:#FF7B72">#{</span><span style="color:#032F62;--shiki-dark:#A5D6FF">name</span><span style="color:#032F62;--shiki-dark:#FF7B72">}</span><span style="color:#032F62;--shiki-dark:#A5D6FF">, args: </span><span style="color:#032F62;--shiki-dark:#FF7B72">#{</span><span style="color:#032F62;--shiki-dark:#A5D6FF">args</span><span style="color:#032F62;--shiki-dark:#FF7B72">}</span><span style="color:#032F62;--shiki-dark:#A5D6FF">"</span></span>
+<span class="line" data-line="6"><span style="color:#D73A49;--shiki-dark:#FF7B72">  end</span></span>
+<span class="line" data-line="7"></span>
+<span class="line" data-line="8"><span style="color:#6A737D;--shiki-dark:#8B949E">  # 实际存在的一个方法</span></span>
+<span class="line" data-line="9"><span style="color:#D73A49;--shiki-dark:#FF7B72">  def</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF"> test</span></span>
+<span class="line" data-line="10"><span style="color:#D73A49;--shiki-dark:#FF7B72">  end</span></span>
+<span class="line" data-line="11"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span>
+<span class="line" data-line="12"></span>
+<span class="line" data-line="13"><span style="color:#E36209;--shiki-dark:#FFA657">a</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> =</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> Demo</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#D73A49;--shiki-dark:#FF7B72">new</span></span>
+<span class="line" data-line="14"></span>
+<span class="line fence-marked" data-line="15"><span style="color:#005CC5;--shiki-dark:#79C0FF">p</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> "respond_to: </span><span style="color:#032F62;--shiki-dark:#FF7B72">#{</span><span style="color:#032F62;--shiki-dark:#A5D6FF">a.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">respond_to?</span><span style="color:#032F62;--shiki-dark:#A5D6FF">(</span><span style="color:#032F62;--shiki-dark:#A5D6FF">'test'</span><span style="color:#032F62;--shiki-dark:#A5D6FF">)</span><span style="color:#032F62;--shiki-dark:#FF7B72">}</span><span style="color:#032F62;--shiki-dark:#A5D6FF">"</span><span style="color:#6A737D;--shiki-dark:#8B949E">   #=> true</span></span>
+<span class="line" data-line="16"><span style="color:#6A737D;--shiki-dark:#8B949E"># 在调用 respond_to? 方法时，如果方法是一个幽灵方法，它会调用 respond_to_missing? 方法确定返回值</span></span>
+<span class="line fence-marked" data-line="17"><span style="color:#005CC5;--shiki-dark:#79C0FF">p</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> "respond_to: </span><span style="color:#032F62;--shiki-dark:#FF7B72">#{</span><span style="color:#032F62;--shiki-dark:#A5D6FF">a.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">respond_to?</span><span style="color:#032F62;--shiki-dark:#A5D6FF">(</span><span style="color:#032F62;--shiki-dark:#A5D6FF">'hello'</span><span style="color:#032F62;--shiki-dark:#A5D6FF">)</span><span style="color:#032F62;--shiki-dark:#FF7B72">}</span><span style="color:#032F62;--shiki-dark:#A5D6FF">"</span><span style="color:#6A737D;--shiki-dark:#8B949E">  #=> false</span></span>
+<span class="line" data-line="18"></span>
+<span class="line" data-line="19"></span>
+<span class="line" data-line="20"><span style="color:#6A737D;--shiki-dark:#8B949E"># 重写 respond_to_missing? 方法之后</span></span>
+<span class="line" data-line="21"><span style="color:#D73A49;--shiki-dark:#FF7B72">class</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> Demo</span></span>
+<span class="line" data-line="22"><span style="color:#D73A49;--shiki-dark:#FF7B72">  def</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF"> method_missing</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(name, </span><span style="color:#D73A49;--shiki-dark:#FF7B72">*</span><span style="color:#24292E;--shiki-dark:#E6EDF3">args)</span></span>
+<span class="line" data-line="23"><span style="color:#6A737D;--shiki-dark:#8B949E">    # 只处理名称为 hello 的幽灵方法</span></span>
+<span class="line" data-line="24"><span style="color:#D73A49;--shiki-dark:#FF7B72">    super</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> if</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> name.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">to_s</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> !=</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> 'hello'</span></span>
+<span class="line" data-line="25"><span style="color:#005CC5;--shiki-dark:#79C0FF">    p</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> "method name: </span><span style="color:#032F62;--shiki-dark:#FF7B72">#{</span><span style="color:#032F62;--shiki-dark:#A5D6FF">name</span><span style="color:#032F62;--shiki-dark:#FF7B72">}</span><span style="color:#032F62;--shiki-dark:#A5D6FF">, args: </span><span style="color:#032F62;--shiki-dark:#FF7B72">#{</span><span style="color:#032F62;--shiki-dark:#A5D6FF">args</span><span style="color:#032F62;--shiki-dark:#FF7B72">}</span><span style="color:#032F62;--shiki-dark:#A5D6FF">"</span></span>
+<span class="line" data-line="26"><span style="color:#D73A49;--shiki-dark:#FF7B72">  end</span></span>
+<span class="line" data-line="27"></span>
+<span class="line" data-line="28"><span style="color:#6A737D;--shiki-dark:#8B949E">  # 实际存在的一个方法</span></span>
+<span class="line" data-line="29"><span style="color:#D73A49;--shiki-dark:#FF7B72">  def</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF"> test</span></span>
+<span class="line" data-line="30"><span style="color:#D73A49;--shiki-dark:#FF7B72">  end</span></span>
+<span class="line" data-line="31"><span style="color:#24292E;--shiki-dark:#E6EDF3">  </span></span>
+<span class="line" data-line="32"><span style="color:#6A737D;--shiki-dark:#8B949E">  # 重写 respond_to_missing? 方法</span></span>
+<span class="line fence-marked" data-line="33"><span style="color:#6A737D;--shiki-dark:#8B949E">  # 只对名为 hello 的幽灵方法返回 true</span></span>
+<span class="line fence-marked" data-line="34"><span style="color:#D73A49;--shiki-dark:#FF7B72">  def</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF"> respond_to_missing?</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(method, include_private</span><span style="color:#D73A49;--shiki-dark:#FF7B72">=</span><span style="color:#005CC5;--shiki-dark:#79C0FF">false</span><span style="color:#24292E;--shiki-dark:#E6EDF3">)</span></span>
+<span class="line fence-marked" data-line="35"><span style="color:#24292E;--shiki-dark:#E6EDF3">    method </span><span style="color:#D73A49;--shiki-dark:#FF7B72">==</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> :hello</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> ||</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> super</span></span>
+<span class="line" data-line="36"><span style="color:#D73A49;--shiki-dark:#FF7B72">  end</span></span>
+<span class="line" data-line="37"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span>
+<span class="line" data-line="38"></span>
+<span class="line" data-line="39"><span style="color:#E36209;--shiki-dark:#FFA657">a</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> =</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> Demo</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#D73A49;--shiki-dark:#FF7B72">new</span></span>
+<span class="line fence-marked" data-line="40"></span>
+<span class="line" data-line="41"><span style="color:#005CC5;--shiki-dark:#79C0FF">p</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> "respond_to: </span><span style="color:#032F62;--shiki-dark:#FF7B72">#{</span><span style="color:#032F62;--shiki-dark:#A5D6FF">a.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">respond_to?</span><span style="color:#032F62;--shiki-dark:#A5D6FF">(</span><span style="color:#032F62;--shiki-dark:#A5D6FF">'test'</span><span style="color:#032F62;--shiki-dark:#A5D6FF">)</span><span style="color:#032F62;--shiki-dark:#FF7B72">}</span><span style="color:#032F62;--shiki-dark:#A5D6FF">"</span><span style="color:#6A737D;--shiki-dark:#8B949E">   #=> true</span></span>
+<span class="line fence-marked" data-line="42"><span style="color:#6A737D;--shiki-dark:#8B949E"># 当询问的幽灵方法名为 hello 时，返回true</span></span>
+<span class="line" data-line="43"><span style="color:#005CC5;--shiki-dark:#79C0FF">p</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> "respond_to: </span><span style="color:#032F62;--shiki-dark:#FF7B72">#{</span><span style="color:#032F62;--shiki-dark:#A5D6FF">a.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">respond_to?</span><span style="color:#032F62;--shiki-dark:#A5D6FF">(</span><span style="color:#032F62;--shiki-dark:#A5D6FF">'hello'</span><span style="color:#032F62;--shiki-dark:#A5D6FF">)</span><span style="color:#032F62;--shiki-dark:#FF7B72">}</span><span style="color:#032F62;--shiki-dark:#A5D6FF">"</span><span style="color:#6A737D;--shiki-dark:#8B949E">  #=> true</span></span>
+<span class="line" data-line="44"><span style="color:#6A737D;--shiki-dark:#8B949E"># 否则，返回false</span></span>
+<span class="line" data-line="45"><span style="color:#005CC5;--shiki-dark:#79C0FF">p</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> "respond_to: </span><span style="color:#032F62;--shiki-dark:#FF7B72">#{</span><span style="color:#032F62;--shiki-dark:#A5D6FF">a.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">respond_to?</span><span style="color:#032F62;--shiki-dark:#A5D6FF">(</span><span style="color:#032F62;--shiki-dark:#A5D6FF">'hello2'</span><span style="color:#032F62;--shiki-dark:#A5D6FF">)</span><span style="color:#032F62;--shiki-dark:#FF7B72">}</span><span style="color:#032F62;--shiki-dark:#A5D6FF">"</span><span style="color:#6A737D;--shiki-dark:#8B949E">  #=> false</span></span></code></pre>
+<h2 id="白板类">白板类</h2>
+<blockquote>
+<p><span class="red">白板类</span>是对幽灵方法的完善，如果<span class="red">幽灵方法</span>和一个<span class="red">真实方法</span>同名，那么<span class="red">幽灵方法</span>会被忽略。
+如果不需要继承来的方法（真实方法），可以通过删除它来解决问题，<ins class="dot">这种拥有极少数方法的类称为<span class="red">白板类</span></ins>（Blank Slate）。</p>
+</blockquote>
+<ul>
+<li>
+<p>实现方式一：</p>
+<ol>
+<li>通过继承<span class="red">BasicObject类</span>，因为其只有少数几个实例方法。</li>
+<li>通过自定义<span class="red">白班类</span>实现，这样可以确保实例方法的名称不会和自己要使用的幽灵方法重名。</li>
+</ol>
+</li>
+<li>
+<p>实现方式二：</p>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="ruby" data-filename="示例代码" data-marked="2,3,4,5,6,7,11,13"><code><span class="line" data-line="1"><span style="color:#D73A49;--shiki-dark:#FF7B72">class</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> Test</span></span>
+<span class="line fence-marked" data-line="2"><span style="color:#D73A49;--shiki-dark:#FF7B72">    def</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF"> method_missing</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(method)</span></span>
+<span class="line fence-marked" data-line="3"><span style="color:#D73A49;--shiki-dark:#FF7B72">        case</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> method</span></span>
+<span class="line fence-marked" data-line="4"><span style="color:#D73A49;--shiki-dark:#FF7B72">        when</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> :display</span></span>
+<span class="line fence-marked" data-line="5"><span style="color:#005CC5;--shiki-dark:#79C0FF">            p</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> 'Display method (Ghost Method)'</span></span>
+<span class="line fence-marked" data-line="6"><span style="color:#D73A49;--shiki-dark:#FF7B72">        end</span></span>
+<span class="line fence-marked" data-line="7"><span style="color:#D73A49;--shiki-dark:#FF7B72">    end</span></span>
+<span class="line" data-line="8"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span>
+<span class="line" data-line="9"></span>
+<span class="line" data-line="10"><span style="color:#E36209;--shiki-dark:#FFA657">t</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> =</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> Test</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#D73A49;--shiki-dark:#FF7B72">new</span></span>
+<span class="line fence-marked" data-line="11"><span style="color:#24292E;--shiki-dark:#E6EDF3">t.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">display</span><span style="color:#6A737D;--shiki-dark:#8B949E"> #=> nil</span></span>
+<span class="line" data-line="12"><span style="color:#6A737D;--shiki-dark:#8B949E"># 上面返回nil是因为Test类自动继承自Object类，而Object中已经有一个display方法了，它回返回nil</span></span>
+<span class="line fence-marked" data-line="13"><span style="color:#005CC5;--shiki-dark:#79C0FF">Object</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">methods</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">grep</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#032F62;--shiki-dark:#A5D6FF">/^display/</span><span style="color:#24292E;--shiki-dark:#E6EDF3">) </span><span style="color:#6A737D;--shiki-dark:#8B949E">#=> [:display]</span></span></code></pre>
+<p>1、使用<span class="red">Module#undef_method</span>方法：<ins class="dot">可以删除（包括继承而来的）所有方法</ins>。</p>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="ruby" data-filename="使用undef_method删除方法" data-marked="4,7,10,20"><code><span class="line" data-line="1"><span style="color:#D73A49;--shiki-dark:#FF7B72"> class</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> BlankSlate</span></span>
+<span class="line" data-line="2"><span style="color:#D73A49;--shiki-dark:#FF7B72">     def</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF"> self.hide</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(name)</span></span>
+<span class="line" data-line="3"><span style="color:#6A737D;--shiki-dark:#8B949E">         # 删除了继承自Object的display方法</span></span>
+<span class="line fence-marked" data-line="4"><span style="color:#24292E;--shiki-dark:#E6EDF3">         undef_method name </span><span style="color:#D73A49;--shiki-dark:#FF7B72">if</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> name </span><span style="color:#D73A49;--shiki-dark:#FF7B72">==</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> :display</span></span>
+<span class="line" data-line="5"><span style="color:#D73A49;--shiki-dark:#FF7B72">     end</span></span>
+<span class="line" data-line="6"></span>
+<span class="line fence-marked" data-line="7"><span style="color:#24292E;--shiki-dark:#E6EDF3">     instance_methods.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">each</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> { |m| </span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">hide</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(m) } </span></span>
+<span class="line" data-line="8"><span style="color:#D73A49;--shiki-dark:#FF7B72"> end</span></span>
+<span class="line" data-line="9"></span>
+<span class="line fence-marked" data-line="10"><span style="color:#D73A49;--shiki-dark:#FF7B72">class</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> Test</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> &#x3C; </span><span style="color:#6F42C1;--shiki-dark:#79C0FF">BlankSlate</span></span>
+<span class="line" data-line="11"><span style="color:#D73A49;--shiki-dark:#FF7B72">     def</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF"> method_missing</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(method)</span></span>
+<span class="line" data-line="12"><span style="color:#D73A49;--shiki-dark:#FF7B72">         case</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> method</span></span>
+<span class="line" data-line="13"><span style="color:#D73A49;--shiki-dark:#FF7B72">         when</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> :display</span></span>
+<span class="line" data-line="14"><span style="color:#005CC5;--shiki-dark:#79C0FF">             p</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> 'Display method (Ghost Method)'</span></span>
+<span class="line" data-line="15"><span style="color:#D73A49;--shiki-dark:#FF7B72">         end</span></span>
+<span class="line" data-line="16"><span style="color:#D73A49;--shiki-dark:#FF7B72">     end</span></span>
+<span class="line" data-line="17"><span style="color:#D73A49;--shiki-dark:#FF7B72"> end</span></span>
+<span class="line" data-line="18"></span>
+<span class="line" data-line="19"><span style="color:#E36209;--shiki-dark:#FFA657"> t</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> =</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> Test</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#D73A49;--shiki-dark:#FF7B72">new</span></span>
+<span class="line fence-marked" data-line="20"><span style="color:#24292E;--shiki-dark:#E6EDF3"> t.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">display</span><span style="color:#6A737D;--shiki-dark:#8B949E"> #=> "Display method (Ghost Method)"</span></span></code></pre>
+<p>2、使用<span class="red">Module#remove_method</span>方法：<ins class="dot">只能删除当前类中定义的方法</ins>。</p>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="ruby" data-filename="使用remove_method删除方法" data-marked="4,18,22"><code><span class="line" data-line="1"><span style="color:#D73A49;--shiki-dark:#FF7B72">class</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> Test</span></span>
+<span class="line" data-line="2"><span style="color:#D73A49;--shiki-dark:#FF7B72">    def</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF"> self.hide</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(name)</span></span>
+<span class="line" data-line="3"><span style="color:#6A737D;--shiki-dark:#8B949E">        # 删除了当前类Test中的实例方法current</span></span>
+<span class="line fence-marked" data-line="4"><span style="color:#6F42C1;--shiki-dark:#D2A8FF">        remove_method</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(name) </span><span style="color:#D73A49;--shiki-dark:#FF7B72">if</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> name </span><span style="color:#D73A49;--shiki-dark:#FF7B72">==</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> :current</span></span>
+<span class="line" data-line="5"><span style="color:#D73A49;--shiki-dark:#FF7B72">    end</span></span>
+<span class="line" data-line="6"></span>
+<span class="line" data-line="7"><span style="color:#D73A49;--shiki-dark:#FF7B72">    def</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF"> method_missing</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(method)</span></span>
+<span class="line" data-line="8"><span style="color:#D73A49;--shiki-dark:#FF7B72">        case</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> method</span></span>
+<span class="line" data-line="9"><span style="color:#D73A49;--shiki-dark:#FF7B72">        when</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> :current</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> </span></span>
+<span class="line" data-line="10"><span style="color:#005CC5;--shiki-dark:#79C0FF">            p</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> 'Current method (Ghost Method)'</span></span>
+<span class="line" data-line="11"><span style="color:#D73A49;--shiki-dark:#FF7B72">        end</span></span>
+<span class="line" data-line="12"><span style="color:#D73A49;--shiki-dark:#FF7B72">    end</span></span>
+<span class="line" data-line="13"></span>
+<span class="line" data-line="14"><span style="color:#D73A49;--shiki-dark:#FF7B72">    def</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF"> current</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> </span></span>
+<span class="line" data-line="15"><span style="color:#005CC5;--shiki-dark:#79C0FF">        p</span><span style="color:#032F62;--shiki-dark:#A5D6FF"> "current method..."</span></span>
+<span class="line" data-line="16"><span style="color:#D73A49;--shiki-dark:#FF7B72">    end</span></span>
+<span class="line" data-line="17"></span>
+<span class="line fence-marked" data-line="18"><span style="color:#24292E;--shiki-dark:#E6EDF3">    instance_methods.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">each</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> { |m| </span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">hide</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(m) }</span></span>
+<span class="line" data-line="19"><span style="color:#D73A49;--shiki-dark:#FF7B72">end</span></span>
+<span class="line" data-line="20"></span>
+<span class="line" data-line="21"><span style="color:#E36209;--shiki-dark:#FFA657">t</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> =</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> Test</span><span style="color:#24292E;--shiki-dark:#E6EDF3">.</span><span style="color:#D73A49;--shiki-dark:#FF7B72">new</span></span>
+<span class="line fence-marked" data-line="22"><span style="color:#24292E;--shiki-dark:#E6EDF3">t.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">current</span><span style="color:#6A737D;--shiki-dark:#8B949E"> #=> "Current method (Ghost Method)"</span></span></code></pre>
+</li>
+</ul></div></article></main><footer class="site-footer" data-astro-cid-z4jru4n3><div class="shell" data-astro-cid-z4jru4n3><p data-astro-cid-z4jru4n3>© 2022–2026 UniStart · 心在哪里，家在哪里</p><p data-astro-cid-z4jru4n3><a href="https://github.com/unistart2" rel="me noopener noreferrer" target="_blank" data-astro-cid-z4jru4n3>GitHub</a><span aria-hidden="true" data-astro-cid-z4jru4n3> · </span><a href="/rss.xml" data-astro-cid-z4jru4n3>RSS</a></p></div></footer><script>
+      const toggle = document.querySelector('[data-theme-toggle]')
+      toggle?.addEventListener('click', () => {
+        const root = document.documentElement
+        const isDark =
+          root.dataset.theme === 'dark' ||
+          (!root.dataset.theme && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        const next = isDark ? 'light' : 'dark'
+        root.dataset.theme = next
+        try {
+          localStorage.setItem('theme', next)
+        } catch {}
+      })
+    </script></body></html>

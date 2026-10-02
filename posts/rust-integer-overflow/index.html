@@ -1,0 +1,75 @@
+<!DOCTYPE html><html lang="zh-CN" data-astro-cid-z4jru4n3><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Rust学习-处理整形溢出 - UniStart&#39;s Blog</title><meta name="description" content="个人博客 —— 学习笔记与工程实践"><link rel="canonical" href="https://unistart2.github.io/posts/rust-integer-overflow/"><link rel="alternate" type="application/rss+xml" title="UniStart's Blog" href="/rss.xml"><link rel="icon" href="/favicon.ico"><meta name="generator" content="Astro v7.3.5"><meta name="theme-color" media="(prefers-color-scheme: light)" content="#f4f5f8"><meta name="theme-color" media="(prefers-color-scheme: dark)" content="#16181d"><script>
+      try {
+        const saved = localStorage.getItem('theme')
+        if (saved === 'light' || saved === 'dark') document.documentElement.dataset.theme = saved
+      } catch {}
+    </script><link rel="stylesheet" href="/_astro/BaseLayout.Dro-nEvJ.css"></head><body data-astro-cid-z4jru4n3><div class="backdrop" aria-hidden="true" data-astro-cid-z4jru4n3></div><header class="site-header" data-astro-cid-z4jru4n3><div class="shell" data-astro-cid-z4jru4n3><a class="site-title" href="/" data-astro-cid-z4jru4n3><img class="avatar" src="/avatar.jpg" alt="" width="36" height="36" data-astro-cid-z4jru4n3><span data-astro-cid-z4jru4n3>UniStart&#39;s Blog<span class="site-tagline" data-astro-cid-z4jru4n3>心在哪里，家在哪里</span></span></a><div class="header-actions" data-astro-cid-z4jru4n3><nav aria-label="主导航" data-astro-cid-z4jru4n3><ul class="site-nav" data-astro-cid-z4jru4n3><li data-astro-cid-z4jru4n3><a href="/" data-astro-cid-z4jru4n3>首页</a></li><li data-astro-cid-z4jru4n3><a href="/archives/" data-astro-cid-z4jru4n3>归档</a></li><li data-astro-cid-z4jru4n3><a href="/categories/" data-astro-cid-z4jru4n3>分类</a></li><li data-astro-cid-z4jru4n3><a href="/tags/" data-astro-cid-z4jru4n3>标签</a></li><li data-astro-cid-z4jru4n3><a href="/friends/" data-astro-cid-z4jru4n3>友链</a></li><li data-astro-cid-z4jru4n3><a href="/links/" data-astro-cid-z4jru4n3>链接</a></li><li data-astro-cid-z4jru4n3><a href="/tools/" data-astro-cid-z4jru4n3>工具</a></li><li data-astro-cid-z4jru4n3><a href="/about/" data-astro-cid-z4jru4n3>关于</a></li></ul></nav><button class="theme-toggle" type="button" data-theme-toggle aria-label="切换深浅色" data-astro-cid-z4jru4n3><span aria-hidden="true" data-astro-cid-z4jru4n3>◐</span></button></div></div></header><main class="layout shell" data-astro-cid-z4jru4n3><article><header class="post-header"><h1>Rust学习-处理整形溢出</h1><div class="post-meta"><time datetime="2022-09-06T16:00:24.000Z">2022-09-06</time><span>分类<ul><li><a href="/categories/Rust/">Rust</a></li></ul></span><span>标签<ul><li><a href="/tags/Rust/">#Rust</a></li></ul></span></div></header><div class="prose"><h1 id="rust-显示处理整形溢出">Rust 显示处理整形溢出</h1>
+<ul>
+<li>
+<h2 id="1使用-wrapping_xxx-方法进行处理">1、使用 wrapping_xxx 方法进行处理</h2>
+</li>
+</ul>
+<blockquote>
+<p>使用wrapping_xxx方法处理后，超过上边界的值会从下边界开始，然后以此类推；超过下边界的值会从上边界开始，然后以此类推</p>
+</blockquote>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="rust"><code><span class="line" data-line="1"><span style="color:#6A737D;--shiki-dark:#8B949E">// i8的范围在[-128, 127]</span></span>
+<span class="line" data-line="2"><span style="color:#6A737D;--shiki-dark:#8B949E">// 127 + 1 = 128 超过了取值上界（上溢出），即128 变为-128</span></span>
+<span class="line" data-line="3"><span style="color:#D73A49;--shiki-dark:#FF7B72">let</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> n</span><span style="color:#D73A49;--shiki-dark:#FF7B72">:</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> i8</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> =</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> 127</span><span style="color:#6F42C1;--shiki-dark:#FFA657">i8</span><span style="color:#D73A49;--shiki-dark:#FF7B72">.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">wrapping_add</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#005CC5;--shiki-dark:#79C0FF">1</span><span style="color:#24292E;--shiki-dark:#E6EDF3">);</span></span>
+<span class="line" data-line="4"><span style="color:#6F42C1;--shiki-dark:#D2A8FF">println!</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#032F62;--shiki-dark:#A5D6FF">"n: {}"</span><span style="color:#24292E;--shiki-dark:#E6EDF3">, n); </span><span style="color:#6A737D;--shiki-dark:#8B949E">//n is -128</span></span>
+<span class="line" data-line="5"></span>
+<span class="line" data-line="6"><span style="color:#6A737D;--shiki-dark:#8B949E">// -128 - 1 = -129 超过了取值下界（下溢出），即-129变为127</span></span>
+<span class="line" data-line="7"><span style="color:#D73A49;--shiki-dark:#FF7B72">let</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> n</span><span style="color:#D73A49;--shiki-dark:#FF7B72">:</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> i8</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> =</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> (</span><span style="color:#D73A49;--shiki-dark:#FF7B72">-</span><span style="color:#005CC5;--shiki-dark:#79C0FF">128</span><span style="color:#6F42C1;--shiki-dark:#FFA657">i8</span><span style="color:#24292E;--shiki-dark:#E6EDF3">)</span><span style="color:#D73A49;--shiki-dark:#FF7B72">.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">wrapping_sub</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#005CC5;--shiki-dark:#79C0FF">1</span><span style="color:#24292E;--shiki-dark:#E6EDF3">);</span></span>
+<span class="line" data-line="8"><span style="color:#6F42C1;--shiki-dark:#D2A8FF">println!</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#032F62;--shiki-dark:#A5D6FF">"n: {}"</span><span style="color:#24292E;--shiki-dark:#E6EDF3">, n); </span><span style="color:#6A737D;--shiki-dark:#8B949E">//n is 127</span></span></code></pre>
+<ul>
+<li>
+<h2 id="2使用-checked_xxx-方法进行处理">2、使用 checked_xxx 方法进行处理</h2>
+</li>
+</ul>
+<blockquote>
+<p>如果溢出则返回None</p>
+</blockquote>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="rust"><code><span class="line" data-line="1"><span style="color:#D73A49;--shiki-dark:#FF7B72">let</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> n</span><span style="color:#D73A49;--shiki-dark:#FF7B72">:</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> i8</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> =</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> 120</span><span style="color:#6F42C1;--shiki-dark:#FFA657">i8</span><span style="color:#D73A49;--shiki-dark:#FF7B72">.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">checked_add</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#005CC5;--shiki-dark:#79C0FF">121</span><span style="color:#24292E;--shiki-dark:#E6EDF3">);</span></span>
+<span class="line" data-line="2"><span style="color:#D73A49;--shiki-dark:#FF7B72">match</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> n {</span></span>
+<span class="line" data-line="3"><span style="color:#6F42C1;--shiki-dark:#FFA657">  Some</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(val) </span><span style="color:#D73A49;--shiki-dark:#FF7B72">=></span><span style="color:#24292E;--shiki-dark:#E6EDF3"> {</span></span>
+<span class="line" data-line="4"><span style="color:#6F42C1;--shiki-dark:#D2A8FF">    println!</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#032F62;--shiki-dark:#A5D6FF">"n: {}"</span><span style="color:#24292E;--shiki-dark:#E6EDF3">, n);</span></span>
+<span class="line" data-line="5"><span style="color:#24292E;--shiki-dark:#E6EDF3">  },</span></span>
+<span class="line" data-line="6"><span style="color:#6F42C1;--shiki-dark:#FFA657">  None</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> =></span><span style="color:#24292E;--shiki-dark:#E6EDF3"> {</span></span>
+<span class="line" data-line="7"><span style="color:#6F42C1;--shiki-dark:#D2A8FF">    println!</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#032F62;--shiki-dark:#A5D6FF">"n is None"</span><span style="color:#24292E;--shiki-dark:#E6EDF3">);</span></span>
+<span class="line" data-line="8"><span style="color:#24292E;--shiki-dark:#E6EDF3">  }</span></span>
+<span class="line" data-line="9"><span style="color:#24292E;--shiki-dark:#E6EDF3">}</span></span></code></pre>
+<ul>
+<li>
+<h2 id="3使用-overflowing_xxx-方法进行处理">3、使用 overflowing_xxx 方法进行处理</h2>
+</li>
+</ul>
+<blockquote>
+<p>返回一个元组（包括一个包装值和一个布尔值），表示是否出现溢出</p>
+</blockquote>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="rust"><code><span class="line" data-line="1"><span style="color:#D73A49;--shiki-dark:#FF7B72">let</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> n</span><span style="color:#D73A49;--shiki-dark:#FF7B72">:</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> i8</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> =</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> 127</span><span style="color:#6F42C1;--shiki-dark:#FFA657">i8</span><span style="color:#D73A49;--shiki-dark:#FF7B72">.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">overflowing_add</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#005CC5;--shiki-dark:#79C0FF">1</span><span style="color:#24292E;--shiki-dark:#E6EDF3">);</span></span>
+<span class="line" data-line="2"><span style="color:#6F42C1;--shiki-dark:#D2A8FF">println!</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#032F62;--shiki-dark:#A5D6FF">"number: {}, bool flag: {}"</span><span style="color:#24292E;--shiki-dark:#E6EDF3">, n</span><span style="color:#D73A49;--shiki-dark:#FF7B72">.</span><span style="color:#005CC5;--shiki-dark:#79C0FF">0</span><span style="color:#24292E;--shiki-dark:#E6EDF3">, n</span><span style="color:#D73A49;--shiki-dark:#FF7B72">.</span><span style="color:#005CC5;--shiki-dark:#79C0FF">1</span><span style="color:#24292E;--shiki-dark:#E6EDF3">); </span><span style="color:#6A737D;--shiki-dark:#8B949E">// number is -128, bool flag is true</span></span></code></pre>
+<ul>
+<li>
+<h2 id="4使用-saturating_xxx-方法进行处理">4、使用 saturating_xxx 方法进行处理</h2>
+</li>
+</ul>
+<blockquote>
+<p>对超过范围的值进行饱和处理，超过最大值则返回最大值；超过最小值则返回最小值</p>
+</blockquote>
+<pre class="astro-code astro-code-themes github-light github-dark-default fence" style="background-color:#fff;--shiki-dark-bg:#0d1117;color:#24292e;--shiki-dark:#e6edf3; overflow-x: auto;" tabindex="0" data-language="rust"><code><span class="line" data-line="1"><span style="color:#D73A49;--shiki-dark:#FF7B72">let</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> n</span><span style="color:#D73A49;--shiki-dark:#FF7B72">:</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> i8</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> =</span><span style="color:#005CC5;--shiki-dark:#79C0FF"> 127</span><span style="color:#6F42C1;--shiki-dark:#FFA657">i8</span><span style="color:#D73A49;--shiki-dark:#FF7B72">.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">saturating_add</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#005CC5;--shiki-dark:#79C0FF">1</span><span style="color:#24292E;--shiki-dark:#E6EDF3">);</span></span>
+<span class="line" data-line="2"><span style="color:#6F42C1;--shiki-dark:#D2A8FF">println!</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#032F62;--shiki-dark:#A5D6FF">"n: {}"</span><span style="color:#24292E;--shiki-dark:#E6EDF3">, n); </span><span style="color:#6A737D;--shiki-dark:#8B949E">// n is 127</span></span>
+<span class="line" data-line="3"></span>
+<span class="line" data-line="4"><span style="color:#D73A49;--shiki-dark:#FF7B72">let</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> n</span><span style="color:#D73A49;--shiki-dark:#FF7B72">:</span><span style="color:#6F42C1;--shiki-dark:#FFA657"> i8</span><span style="color:#D73A49;--shiki-dark:#FF7B72"> =</span><span style="color:#24292E;--shiki-dark:#E6EDF3"> (</span><span style="color:#D73A49;--shiki-dark:#FF7B72">-</span><span style="color:#005CC5;--shiki-dark:#79C0FF">128</span><span style="color:#24292E;--shiki-dark:#E6EDF3">)</span><span style="color:#6F42C1;--shiki-dark:#FFA657">i8</span><span style="color:#D73A49;--shiki-dark:#FF7B72">.</span><span style="color:#6F42C1;--shiki-dark:#D2A8FF">saturating_sub</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#005CC5;--shiki-dark:#79C0FF">1</span><span style="color:#24292E;--shiki-dark:#E6EDF3">);</span></span>
+<span class="line" data-line="5"><span style="color:#6F42C1;--shiki-dark:#D2A8FF">println!</span><span style="color:#24292E;--shiki-dark:#E6EDF3">(</span><span style="color:#032F62;--shiki-dark:#A5D6FF">"n: {}"</span><span style="color:#24292E;--shiki-dark:#E6EDF3">, n); </span><span style="color:#6A737D;--shiki-dark:#8B949E">// n is -128</span></span></code></pre></div></article></main><footer class="site-footer" data-astro-cid-z4jru4n3><div class="shell" data-astro-cid-z4jru4n3><p data-astro-cid-z4jru4n3>© 2022–2026 UniStart · 心在哪里，家在哪里</p><p data-astro-cid-z4jru4n3><a href="https://github.com/unistart2" rel="me noopener noreferrer" target="_blank" data-astro-cid-z4jru4n3>GitHub</a><span aria-hidden="true" data-astro-cid-z4jru4n3> · </span><a href="/rss.xml" data-astro-cid-z4jru4n3>RSS</a></p></div></footer><script>
+      const toggle = document.querySelector('[data-theme-toggle]')
+      toggle?.addEventListener('click', () => {
+        const root = document.documentElement
+        const isDark =
+          root.dataset.theme === 'dark' ||
+          (!root.dataset.theme && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        const next = isDark ? 'light' : 'dark'
+        root.dataset.theme = next
+        try {
+          localStorage.setItem('theme', next)
+        } catch {}
+      })
+    </script></body></html>
