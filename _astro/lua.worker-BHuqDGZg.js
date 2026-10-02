@@ -18,5 +18,5 @@ io.write = function(...)
   __emit('stdout', __join('', ...))
 end
 `),e})(),f}function m(e,t){return e.global.set(`__code`,t),e.doString([`local expr = load('return ' .. __code)`,`if expr then return expr() end`,`local chunk, err = load(__code)`,`if chunk then return chunk() end`,`error(err, 0)`].join(`
-`))}function h(e){if(e!=null){if(typeof e==`object`)try{return JSON.stringify(e)}catch{return String(e)}return String(e)}}self.onmessage=async e=>{let{code:t,stdin:n=``}=e.data;try{let e=await ee(),r=n.split(`
-`),i=0;e.global.set(`__read`,()=>i<r.length?r[i++]:void 0),await e.doString(`io.read = function() return __read() end`);let a=await m(e,t);self.postMessage({type:`done`,ok:!0,value:h(a)})}catch(e){let t=e,n=t.message??String(e);p(`stderr`,`${n}\n`),self.postMessage({type:`done`,ok:!1,error:{name:t.name??`Error`,message:n}})}}})();
+`))}function h(e){if(e!=null){if(typeof e==`object`)try{return JSON.stringify(e)}catch{return String(e)}return String(e)}}self.onmessage=async e=>{let{code:t=``,stdin:n=``,type:r}=e.data;try{let e=await ee();if(self.postMessage({type:`booted`}),r===`preload`)return;let i=n.split(`
+`),a=0;e.global.set(`__read`,()=>a<i.length?i[a++]:void 0),await e.doString(`io.read = function() return __read() end`);let o=await m(e,t);self.postMessage({type:`done`,ok:!0,value:h(o)})}catch(e){let t=e,n=t.message??String(e);p(`stderr`,`${n}\n`),self.postMessage({type:`done`,ok:!1,error:{name:t.name??`Error`,message:n}})}}})();
