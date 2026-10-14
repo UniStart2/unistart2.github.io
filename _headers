@@ -1,0 +1,12 @@
+# Cloudflare Pages 安全响应头(GitHub Pages 会忽略本文件,无副作用)。
+# CSP 说明:
+#   - 'unsafe-inline' script/style:Astro 作用域样式与内联脚本所需
+#   - 'wasm-unsafe-eval':Pyodide / wasmoon(Python · Lua 运行时)编译 WASM 所需
+#   - worker-src blob::部分 WASM 运行时以 Blob 方式起 Worker
+#   - img-src data::命名页/工具的内联图形
+#   - 接入友链后端(PUBLIC_FRIENDS_ENDPOINT)时,把该域名加入 connect-src。
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; worker-src 'self' blob:; font-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'
